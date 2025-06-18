@@ -1,7 +1,7 @@
 // API Client for PM Tools Chrome Extension
 // Based on streamlit_app/components/api_client.py
 
-import { DEFAULT_CONFIG, API_ENDPOINTS, ERROR_MESSAGES } from './constants.js';
+import { DEFAULT_CONFIG, API_ENDPOINTS, ERROR_MESSAGES, ENDPOINT_TIMEOUTS } from './constants.js';
 import { getStorageData } from './utils.js';
 
 export class APIClient {
@@ -40,9 +40,13 @@ export class APIClient {
       ...options
     };
 
+    // Use endpoint-specific timeout if available, otherwise use default
+    const endpointTimeout = ENDPOINT_TIMEOUTS[endpoint] || this.timeout;
+    console.log(`🕒 Using timeout ${endpointTimeout}ms for endpoint ${endpoint}`);
+    
     // Add timeout using AbortController
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const timeoutId = setTimeout(() => controller.abort(), endpointTimeout);
 
     try {
       const response = await fetch(url, {
@@ -57,7 +61,11 @@ export class APIClient {
       clearTimeout(timeoutId);
       
       if (error.name === 'AbortError') {
-        throw new APIError(ERROR_MESSAGES.TIMEOUT_ERROR);
+        // Use specific timeout message for analyze endpoint
+        const timeoutMessage = endpoint === API_ENDPOINTS.analyzeResults 
+          ? ERROR_MESSAGES.TIMEOUT_ERROR_ANALYZE 
+          : ERROR_MESSAGES.TIMEOUT_ERROR;
+        throw new APIError(timeoutMessage);
       }
       
       throw new APIError(error.message || ERROR_MESSAGES.CONNECTION_FAILED);

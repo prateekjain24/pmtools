@@ -2,9 +2,17 @@
 
 export const DEFAULT_CONFIG = {
   apiHostname: 'http://localhost:8000',
-  timeout: 30000,
+  timeout: 45000, // Increased default timeout to 45 seconds
   retryAttempts: 3,
   retryDelay: 1000
+};
+
+// Endpoint-specific timeout configurations
+export const ENDPOINT_TIMEOUTS = {
+  '/health': 10000,           // 10 seconds for health checks
+  '/validate/setup': 30000,   // 30 seconds for validation
+  '/analyze/results': 90000,  // 90 seconds for AI-powered analysis
+  '/llm/status': 15000        // 15 seconds for LLM status
 };
 
 export const ENVIRONMENT_PRESETS = {
@@ -50,6 +58,7 @@ export const ERROR_MESSAGES = {
   VALIDATION_ERROR: 'Please check your input values and try again.',
   SERVER_ERROR: 'Server error occurred. Please try again later.',
   TIMEOUT_ERROR: 'Request timed out. Please try again or check your connection.',
+  TIMEOUT_ERROR_ANALYZE: 'Analysis is taking longer than expected. This is normal for AI-powered analysis. Please wait or try again.',
   UNKNOWN_ERROR: 'An unexpected error occurred. Please try again.'
 };
 

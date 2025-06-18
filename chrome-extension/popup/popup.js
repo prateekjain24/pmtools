@@ -306,10 +306,13 @@ class PopupManager {
       const formData = this.getAnalyzeFormData();
       this.validateAnalyzeForm(formData);
       
-      // Show loading state
+      // Show loading state with special message for analyze
       submitBtn.disabled = true;
       btnText.classList.add('hidden');
       btnSpinner.classList.remove('hidden');
+      
+      // Show informative message for analyze endpoint
+      showMessage(messagesEl, '🧠 AI analysis in progress... This may take 30-90 seconds.', 'info', 0);
       
       // Save form data
       await saveFormData('analyze', formData);
@@ -321,10 +324,12 @@ class PopupManager {
       this.displayAnalyzeResults(response);
       this.currentResults = { type: 'analyze', data: response };
       
+      clearMessages(messagesEl);
       showMessage(messagesEl, 'Analysis completed successfully!', 'success');
       
     } catch (error) {
       console.error('Analysis failed:', error);
+      clearMessages(messagesEl);
       if (error instanceof APIError) {
         showMessage(messagesEl, error.message, 'error');
       } else {
@@ -557,6 +562,10 @@ class PopupManager {
     const resultsEl = document.getElementById('analyzeResults');
     const contentEl = document.getElementById('analyzeResultsContent');
     
+    if (!resultsEl || !contentEl) {
+      throw new Error('Required DOM elements not found');
+    }
+    
     let html = '';
     
     // Statistical Summary
@@ -591,7 +600,7 @@ class PopupManager {
     html += '</div>';
     
     // AI Interpretation
-    if (response.generative_analysis.interpretation_narrative) {
+    if (response.generative_analysis && response.generative_analysis.interpretation_narrative) {
       html += '<div class="section">';
       html += '<h4>🧠 AI Interpretation</h4>';
       html += `<div class="interpretation-text">${formatTextToHTML(response.generative_analysis.interpretation_narrative)}</div>`;
@@ -599,7 +608,7 @@ class PopupManager {
     }
     
     // Recommendations
-    if (response.generative_analysis.recommended_next_steps && response.generative_analysis.recommended_next_steps.length > 0) {
+    if (response.generative_analysis && response.generative_analysis.recommended_next_steps && response.generative_analysis.recommended_next_steps.length > 0) {
       html += '<div class="section">';
       html += '<h4>🎯 Recommended Next Steps</h4>';
       html += '<div class="recommendations">';
@@ -619,7 +628,7 @@ class PopupManager {
     }
     
     // Follow-up Questions
-    if (response.generative_analysis.generated_questions && response.generative_analysis.generated_questions.length > 0) {
+    if (response.generative_analysis && response.generative_analysis.generated_questions && response.generative_analysis.generated_questions.length > 0) {
       html += '<div class="section">';
       html += '<h4>❓ Follow-up Questions</h4>';
       html += '<ul>';
