@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - A/B Testing Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">🧪</span>
+        <span class="logo-text">PM Tools</span>
+      </div>
+      <div class="api-status" id="apiStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-text" id="statusText">Checking...</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" id="settingsBtn" title="Settings">
+        <span>⚙️</span>
+      </button>
+      <button class="btn-icon" id="refreshBtn" title="Refresh Connection">
+        <span>🔄</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages"></div>
+
+  <!-- Tab Navigation -->
+  <div class="tabs">
+    <button class="tab-button active" data-tab="validate">
+      <span class="tab-icon">🔬</span>
+      <span class="tab-text">Validate Setup</span>
+    </button>
+    <button class="tab-button" data-tab="analyze">
+      <span class="tab-icon">📊</span>
+      <span class="tab-text">Analyze Results</span>
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    
+    <!-- Validate Setup Tab -->
+    <div class="tab-panel active" id="validatePanel">
+      <div class="panel-header">
+        <h2>🔬 Experiment Setup Validation</h2>
+        <p>Get instant feedback on your A/B test design</p>
+      </div>
+
+      <form class="form" id="validateForm">
+        <!-- Hypothesis -->
+        <div class="form-group">
+          <label for="hypothesis" class="form-label">
+            Hypothesis <span class="required">*</span>
+            <span class="tooltip" title="Clear, testable prediction about the expected outcome">ℹ️</span>
+          </label>
+          <textarea 
+            id="hypothesis" 
+            name="hypothesis" 
+            class="form-textarea" 
+            placeholder="e.g., Changing the CTA button color from blue to green will increase conversion rate by at least 5%"
+            rows="3"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Primary Metric -->
+        <div class="form-group">
+          <label for="metricName" class="form-label">
+            Primary Metric <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="metricName" 
+            name="metricName" 
+            class="form-input" 
+            placeholder="e.g., Conversion Rate"
+            required
+          />
+        </div>
+
+        <!-- Baseline Conversion Rate -->
+        <div class="form-group">
+          <label for="baselineRate" class="form-label">
+            Baseline Conversion Rate <span class="required">*</span>
+            <span class="tooltip" title="Current conversion rate as a decimal (e.g., 0.05 for 5%)">ℹ️</span>
+          </label>
+          <input 
+            type="number" 
+            id="baselineRate" 
+            name="baselineRate" 
+            class="form-input" 
+            placeholder="0.05"
+            step="0.001"
+            min="0"
+            max="1"
+            required
+          />
+        </div>
+
+        <!-- MDE Type Selection -->
+        <div class="form-group">
+          <label class="form-label">Minimum Detectable Effect (MDE)</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="mdeType" value="relative" checked>
+              <span class="radio-custom"></span>
+              Relative (%)
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="mdeType" value="absolute">
+              <span class="radio-custom"></span>
+              Absolute Value
+            </label>
+          </div>
+        </div>
+
+        <!-- MDE Values -->
+        <div class="form-group" id="relativeMdeGroup">
+          <label for="relativeMde" class="form-label">
+            Relative MDE (%) <span class="required">*</span>
+            <span class="tooltip" title="Percentage increase you want to detect (e.g., 10 for 10% lift)">ℹ️</span>
+          </label>
+          <input 
+            type="number" 
+            id="relativeMde" 
+            name="relativeMde" 
+            class="form-input" 
+            placeholder="10"
+            step="0.1"
+            min="0.1"
+          />
+        </div>
+
+        <div class="form-group hidden" id="absoluteMdeGroup">
+          <label for="absoluteMde" class="form-label">
+            Absolute MDE <span class="required">*</span>
+            <span class="tooltip" title="Absolute difference you want to detect (e.g., 0.01 for 1 percentage point)">ℹ️</span>
+          </label>
+          <input 
+            type="number" 
+            id="absoluteMde" 
+            name="absoluteMde" 
+            class="form-input" 
+            placeholder="0.01"
+            step="0.001"
+            min="0.001"
+          />
+        </div>
+
+        <!-- Traffic -->
+        <div class="form-group">
+          <label for="dailyUsers" class="form-label">
+            Estimated Daily Users <span class="required">*</span>
+            <span class="tooltip" title="Number of users who will see the experiment daily">ℹ️</span>
+          </label>
+          <input 
+            type="number" 
+            id="dailyUsers" 
+            name="dailyUsers" 
+            class="form-input" 
+            placeholder="1000"
+            min="1"
+            required
+          />
+        </div>
+
+        <!-- Advanced Options (Collapsible) -->
+        <div class="collapsible">
+          <button type="button" class="collapsible-header" id="advancedToggle">
+            <span>Advanced Options</span>
+            <span class="collapsible-arrow">▼</span>
+          </button>
+          <div class="collapsible-content" id="advancedOptions">
+            <div class="form-group">
+              <label for="variants" class="form-label">Number of Variants</label>
+              <select id="variants" name="variants" class="form-select">
+                <option value="2">2 (Control + Treatment)</option>
+                <option value="3">3 (Control + 2 Treatments)</option>
+                <option value="4">4 (Control + 3 Treatments)</option>
+                <option value="5">5 (Control + 4 Treatments)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="power" class="form-label">Statistical Power</label>
+              <select id="power" name="power" class="form-select">
+                <option value="0.80">80% (Standard)</option>
+                <option value="0.85">85%</option>
+                <option value="0.90">90%</option>
+                <option value="0.95">95%</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="significance" class="form-label">Significance Level</label>
+              <select id="significance" name="significance" class="form-select">
+                <option value="0.05">0.05 (5%)</option>
+                <option value="0.01">0.01 (1%)</option>
+                <option value="0.10">0.10 (10%)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="validateReset">
+            Reset Form
+          </button>
+          <button type="submit" class="btn btn-primary" id="validateSubmit">
+            <span class="btn-text">Validate Setup</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Results -->
+      <div class="results hidden" id="validateResults">
+        <div class="results-header">
+          <h3>📋 Validation Results</h3>
+          <div class="results-actions">
+            <button class="btn-icon" id="exportValidateJson" title="Export as JSON">📄</button>
+            <button class="btn-icon" id="exportValidateCsv" title="Export as CSV">📊</button>
+          </div>
+        </div>
+        <div class="results-content" id="validateResultsContent">
+          <!-- Results will be populated here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Analyze Results Tab -->
+    <div class="tab-panel" id="analyzePanel">
+      <div class="panel-header">
+        <h2>📊 Experiment Results Analysis</h2>
+        <p>Transform raw data into actionable insights</p>
+      </div>
+
+      <form class="form" id="analyzeForm">
+        <!-- Context -->
+        <div class="form-section">
+          <h3 class="section-title">📝 Experiment Context</h3>
+          
+          <div class="form-group">
+            <label for="analyzeHypothesis" class="form-label">
+              Original Hypothesis <span class="required">*</span>
+            </label>
+            <textarea 
+              id="analyzeHypothesis" 
+              name="analyzeHypothesis" 
+              class="form-textarea" 
+              placeholder="The hypothesis you tested"
+              rows="2"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="primaryMetric" class="form-label">
+              Primary Metric Name <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="primaryMetric" 
+              name="primaryMetric" 
+              class="form-input" 
+              placeholder="e.g., Conversion Rate"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="pmNotes" class="form-label">
+              PM Notes (Optional)
+              <span class="tooltip" title="Any context or observations about the experiment">ℹ️</span>
+            </label>
+            <textarea 
+              id="pmNotes" 
+              name="pmNotes" 
+              class="form-textarea" 
+              placeholder="Any additional context, observations, or concerns about the experiment"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Results Data -->
+        <div class="form-section">
+          <h3 class="section-title">📈 Results Data</h3>
+          
+          <div class="variants-container" id="variantsContainer">
+            <!-- Control Variant -->
+            <div class="variant-group" data-variant="0">
+              <div class="variant-header">
+                <h4>Control Group</h4>
+                <span class="variant-label">A</span>
+              </div>
+              <div class="variant-fields">
+                <div class="form-group">
+                  <label class="form-label">Variant Name</label>
+                  <input 
+                    type="text" 
+                    name="variant_0_name" 
+                    class="form-input" 
+                    value="Control"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Users <span class="required">*</span></label>
+                  <input 
+                    type="number" 
+                    name="variant_0_users" 
+                    class="form-input" 
+                    placeholder="1000"
+                    min="1"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Conversions <span class="required">*</span></label>
+                  <input 
+                    type="number" 
+                    name="variant_0_conversions" 
+                    class="form-input" 
+                    placeholder="50"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Treatment Variant -->
+            <div class="variant-group" data-variant="1">
+              <div class="variant-header">
+                <h4>Treatment Group</h4>
+                <span class="variant-label">B</span>
+              </div>
+              <div class="variant-fields">
+                <div class="form-group">
+                  <label class="form-label">Variant Name</label>
+                  <input 
+                    type="text" 
+                    name="variant_1_name" 
+                    class="form-input" 
+                    value="Treatment"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Users <span class="required">*</span></label>
+                  <input 
+                    type="number" 
+                    name="variant_1_users" 
+                    class="form-input" 
+                    placeholder="1000"
+                    min="1"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Conversions <span class="required">*</span></label>
+                  <input 
+                    type="number" 
+                    name="variant_1_conversions" 
+                    class="form-input" 
+                    placeholder="65"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions-inline">
+            <button type="button" class="btn btn-secondary" id="addVariant">
+              + Add Variant
+            </button>
+            <button type="button" class="btn btn-secondary" id="removeVariant">
+              - Remove Variant
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="analyzeReset">
+            Reset Form
+          </button>
+          <button type="submit" class="btn btn-primary" id="analyzeSubmit">
+            <span class="btn-text">Analyze Results</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Results -->
+      <div class="results hidden" id="analyzeResults">
+        <div class="results-header">
+          <h3>🎯 Analysis Results</h3>
+          <div class="results-actions">
+            <button class="btn-icon" id="exportAnalyzeJson" title="Export as JSON">📄</button>
+            <button class="btn-icon" id="exportAnalyzeCsv" title="Export as CSV">📊</button>
+          </div>
+        </div>
+        <div class="results-content" id="analyzeResultsContent">
+          <!-- Results will be populated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Processing your request...</p>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

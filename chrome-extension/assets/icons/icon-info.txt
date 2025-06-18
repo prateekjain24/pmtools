@@ -1,0 +1,46 @@
+# PM Tools Extension Icons
+
+This directory should contain the following icon files for the Chrome extension:
+
+## Required Icons
+
+- **icon16.png** - 16x16 pixels - Used in the extension toolbar
+- **icon48.png** - 48x48 pixels - Used in the extensions management page
+- **icon128.png** - 128x128 pixels - Used in the Chrome Web Store
+
+## Icon Design Guidelines
+
+### Visual Elements
+- Primary colors: #667eea (blue-purple gradient)
+- Icon should include: 🧪 (test tube) or ⚗️ (chemistry) symbolism
+- Clean, modern design that works at small sizes
+- High contrast for visibility
+
+### Technical Requirements
+- **Format**: PNG with transparency
+- **Background**: Transparent
+- **Style**: Flat design with minimal details
+- **Colors**: Match the PM Tools brand colors
+
+### Suggested Design
+A minimalist test tube or beaker icon with:
+- Blue-purple gradient (#667eea to #764ba2)
+- White/light accent elements
+- Clean geometric shapes
+- Professional appearance suitable for business tools
+
+## Creating Icons
+
+You can create these icons using:
+- **Online tools**: Canva, Figma, or Chrome Extension Icon Generator
+- **Design software**: Adobe Illustrator, Sketch, or GIMP
+- **Icon libraries**: Use existing scientific/testing icons as a base
+
+## Temporary Placeholder
+
+Until proper icons are created, you can use:
+1. Any existing 16x16, 48x48, and 128x128 PNG images
+2. Rename them to match the required filenames
+3. Place them in this directory
+
+The extension will work with any valid PNG files of the correct dimensions.

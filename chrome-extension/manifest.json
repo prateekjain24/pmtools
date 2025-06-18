@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "PM Tools - A/B Testing Assistant",
+  "version": "1.0.0",
+  "description": "AI-powered A/B testing validation and analysis tool for Product Managers",
+  
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "https://*/*"
+  ],
+  
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "PM Tools - A/B Testing",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  
+  "options_page": "options/options.html",
+  
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
