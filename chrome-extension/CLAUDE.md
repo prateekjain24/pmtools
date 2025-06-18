@@ -2,6 +2,26 @@
 
 This file provides comprehensive guidance for developing, maintaining, and extending the PM Tools Chrome Extension.
 
+## 🚀 Current Status (Updated: June 18, 2025)
+
+### ✅ **Recently Fixed Issues**
+- **API Timeout Fix**: Increased timeout to 90 seconds for AI-powered analysis endpoints
+- **Tab Click Areas**: Fixed tabs only clickable at bottom - entire surface now works
+- **Basic Markdown Rendering**: Headers (`### Title`) now render as proper `<h3>` elements
+- **User Experience**: Added progress messages for AI processing, better error handling
+
+### ⚠️ **Known Issues**
+- **Follow-up Questions Markdown**: AI-generated questions still display as run-on text instead of formatted list items
+  - Pattern: `**Category:** content **Next Category:** content`
+  - Need: Debug actual AI text format and improve pattern detection
+  - Status: Partial fix attempted, requires further investigation
+
+### 🎯 **Next Development Priorities**
+1. Fix follow-up questions markdown rendering with proper debugging
+2. Test with various AI response formats
+3. Enhance error handling for edge cases
+4. Add more comprehensive markdown support if needed
+
 ## 🏗️ Extension Architecture
 
 ### Directory Structure
@@ -395,6 +415,28 @@ const ENVIRONMENT_PRESETS = {
 };
 ```
 
+### Timeout Configuration (Updated June 2025)
+```javascript
+// Default timeout settings in shared/constants.js
+export const DEFAULT_CONFIG = {
+  apiHostname: 'http://localhost:8000',
+  timeout: 45000, // Increased from 30s to 45s
+  retryAttempts: 3,
+  retryDelay: 1000
+};
+
+// Endpoint-specific timeouts for AI processing
+export const ENDPOINT_TIMEOUTS = {
+  '/health': 10000,           // 10 seconds for health checks
+  '/validate/setup': 30000,   // 30 seconds for validation
+  '/analyze/results': 90000,  // 90 seconds for AI-powered analysis
+  '/llm/status': 15000        // 15 seconds for LLM status
+};
+
+// Usage in api-client.js
+const endpointTimeout = ENDPOINT_TIMEOUTS[endpoint] || this.timeout;
+```
+
 ### Storage Schema
 ```javascript
 // Chrome storage structure
@@ -476,6 +518,45 @@ chrome.storage.sync.get(null, (all) => {
 
 // Clear storage for testing
 chrome.storage.sync.clear();
+```
+
+#### 5. Markdown Rendering Issues (AI Content)
+```javascript
+// Debug formatTextToHTML function
+// Add these logs to shared/utils.js formatTextToHTML function
+console.log('Input text:', text);
+console.log('Question matches:', text.match(/\*\*[^*]+\*\*:/g));
+
+// Check if AI question pattern is detected
+const questionMatches = text.match(/\*\*[^*]+\*\*:/g);
+if (questionMatches && questionMatches.length > 1) {
+  console.log('AI pattern detected, questions:', questionMatches);
+} else {
+  console.log('AI pattern NOT detected');
+}
+
+// Common issues:
+// 1. AI text format doesn't match expected pattern
+// 2. Hidden characters or different spacing
+// 3. Regex patterns need adjustment
+// 4. Block processing order interfering
+
+// To debug in Chrome extension:
+// 1. Right-click extension icon → "Inspect popup"
+// 2. Go to Console tab
+// 3. Submit analyze form and watch logs
+```
+
+#### 6. Chrome Extension Console Access
+```bash
+# Method 1: Right-click extension icon
+Right-click PM Tools extension icon → "Inspect popup"
+
+# Method 2: Extensions page
+chrome://extensions/ → PM Tools → "Inspect views: popup"
+
+# Method 3: Background script (if needed)
+chrome://extensions/ → PM Tools → "Inspect views: service worker"
 ```
 
 ### Performance Debugging
