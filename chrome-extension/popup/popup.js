@@ -13,7 +13,8 @@ import {
   getConfiguration,
   validateRequired,
   validateNumber,
-  validateInteger
+  validateInteger,
+  formatTextToHTML
 } from '../shared/utils.js';
 
 class PopupManager {
@@ -509,7 +510,7 @@ class PopupManager {
         html += `<tr>
           <td>${response.inputs_summary.mde_type === 'relative' ? formatPercentage(row.mde) : formatNumber(row.mde, 3)}</td>
           <td>${formatNumber(row.sample_size_per_variant, 0)}</td>
-          <td>${formatNumber(row.duration_days, 1)}</td>
+          <td>${formatNumber(row.estimated_duration_days, 1)}</td>
         </tr>`;
       });
       html += '</tbody>';
@@ -526,18 +527,23 @@ class PopupManager {
       
       const score = response.hypothesis_assessment.score;
       let scoreClass = 'poor';
-      if (score >= 7) scoreClass = 'good';
+      if (score >= 9) scoreClass = 'excellent';
+      else if (score >= 7) scoreClass = 'good';
       else if (score >= 5) scoreClass = 'medium';
+      else if (score >= 3) scoreClass = 'poor';
+      else scoreClass = 'very-poor';
       
-      html += `<div class="score-circle ${scoreClass}">${score}/10</div>`;
-      html += '<div>';
-      html += `<div><strong>Assessment:</strong> ${response.hypothesis_assessment.assessment}</div>`;
-      html += '</div>';
-      html += '</div>';
+      const scorePercentage = (score / 10) * 100;
       
+      html += `<div class="score-circle ${scoreClass}" style="--score-percentage: ${scorePercentage}"><span>${score}/10</span></div>`;
+      html += '<div class="assessment-content">';
+      html += `<div class="assessment-title">Hypothesis Quality Assessment</div>`;
+      html += `<div class="assessment-text">${formatTextToHTML(response.hypothesis_assessment.assessment)}</div>`;
       if (response.hypothesis_assessment.suggestions) {
-        html += `<div><strong>Suggestions:</strong> ${response.hypothesis_assessment.suggestions}</div>`;
+        html += `<div class="assessment-suggestions"><strong>Suggestions:</strong> ${formatTextToHTML(response.hypothesis_assessment.suggestions)}</div>`;
       }
+      html += '</div>';
+      html += '</div>';
       
       html += '</div>';
       html += '</div>';
@@ -588,7 +594,7 @@ class PopupManager {
     if (response.generative_analysis.interpretation_narrative) {
       html += '<div class="section">';
       html += '<h4>🧠 AI Interpretation</h4>';
-      html += `<div class="interpretation-text">${response.generative_analysis.interpretation_narrative}</div>`;
+      html += `<div class="interpretation-text">${formatTextToHTML(response.generative_analysis.interpretation_narrative)}</div>`;
       html += '</div>';
     }
     
@@ -601,10 +607,10 @@ class PopupManager {
       response.generative_analysis.recommended_next_steps.forEach(rec => {
         html += `<div class="recommendation-item">
           <div class="recommendation-header">
-            <div class="recommendation-action">${rec.action}</div>
+            <div class="recommendation-action">${formatTextToHTML(rec.action)}</div>
             <div class="confidence-badge ${rec.confidence.toLowerCase()}">${rec.confidence}</div>
           </div>
-          <div class="recommendation-rationale">${rec.rationale}</div>
+          <div class="recommendation-rationale">${formatTextToHTML(rec.rationale)}</div>
         </div>`;
       });
       

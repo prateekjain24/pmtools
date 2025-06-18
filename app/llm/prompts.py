@@ -1,22 +1,37 @@
 def get_hypothesis_assessment_prompt(hypothesis: str) -> str:
     """Generate prompt for hypothesis clarity assessment."""
     return f"""
-Please assess the clarity and structure of this A/B testing hypothesis:
+You are a senior statistician reviewing this A/B testing hypothesis. Be moderately critical and rigorous in your evaluation:
 
 "{hypothesis}"
 
-Evaluate the hypothesis on the following criteria:
-1. Clarity: Is the hypothesis clearly stated and understandable?
-2. Specificity: Does it specify what will be tested and what outcome is expected?
-3. Measurability: Is the expected outcome measurable?
-4. Structure: Does it follow a good hypothesis format (e.g., "We believe that...")
+Evaluate using this strict scoring rubric:
+• **9-10**: Exceptional - Clear action→metric→magnitude with justification (e.g., "Changing CTA from 'Learn More' to 'Get Started' will increase signup conversion rate by at least 15% because it creates more urgency")
+• **7-8**: Good - Specifies change, metric, and expected direction with some quantification  
+• **5-6**: Average - Mentions what's being tested and general expectation but lacks precision
+• **3-4**: Poor - Vague about change or outcome, missing key elements
+• **1-2**: Very Poor - No clear direction, unmeasurable, or fundamentally flawed
 
-Provide a brief assessment (2-3 sentences) with a clarity score from 1-10 and specific suggestions for improvement if needed.
+**Common issues to penalize:**
+- Vague language ("improve", "better", "increase" without specifics)
+- No quantified expectation or timeframe
+- Unclear what exactly is being changed
+- Unmeasurable outcomes
+- Missing baseline or comparison point
+- No logical reasoning for expected outcome
+
+**Criteria for evaluation:**
+1. **Specificity**: Does it clearly state WHAT is changing FROM what TO what?
+2. **Measurability**: Is the outcome quantifiable with specific metrics?
+3. **Magnitude**: Does it specify HOW MUCH change is expected?
+4. **Logic**: Is there reasoning for WHY this change should work?
+
+Be critical - most hypotheses have room for improvement. A score of 8+ should be rare and only for truly well-crafted hypotheses.
 
 Format your response as:
 Score: X/10
-Assessment: [Your assessment here]
-Suggestions: [Improvement suggestions if score < 8, or "None needed" if score >= 8]
+Assessment: [Your critical assessment in 2-3 sentences explaining the score]
+Suggestions: [Specific, actionable improvements - always provide suggestions unless score is 9+]
 """
 
 

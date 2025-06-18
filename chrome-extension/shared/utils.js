@@ -219,3 +219,44 @@ export function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
+
+// Convert markdown-style text to HTML for proper rendering
+export function formatTextToHTML(text) {
+  if (!text) return '';
+  
+  let html = text
+    // Convert **bold** to <strong>
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    // Convert *italic* to <em>
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Convert numbered lists (1. item) to HTML lists
+    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+    // Convert bullet points (- item or • item) to HTML lists
+    .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
+    // Convert line breaks to <br> but preserve paragraph structure
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  
+  // Wrap consecutive <li> elements in <ul> tags
+  html = html.replace(/(<li>.*?<\/li>)(?:\s*<br>)*(?=<li>)/gs, '$1');
+  html = html.replace(/(<li>.*?<\/li>)(?:\s*<br>)*(?!<li>)/gs, '</ul>$1');
+  html = html.replace(/(<li>.*?<\/li>)/s, '<ul>$1</ul>');
+  
+  // Wrap in paragraph tags if it doesn't start with a block element
+  if (!html.startsWith('<ul>') && !html.startsWith('<li>') && !html.startsWith('<p>')) {
+    html = `<p>${html}</p>`;
+  }
+  
+  // Clean up extra paragraph tags
+  html = html.replace(/<p><\/p>/g, '');
+  html = html.replace(/<p>\s*<br>\s*<\/p>/g, '');
+  
+  return html;
+}
+
+// Escape HTML to prevent XSS while preserving intentional formatting
+export function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
