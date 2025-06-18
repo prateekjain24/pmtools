@@ -233,12 +233,7 @@ export function formatTextToHTML(text) {
       .replace(/^## (.+)$/gm, '<h2>$1</h2>')
       .replace(/^# (.+)$/gm, '<h1>$1</h1>');
     
-    // Step 2: Process bold and italic text
-    html = html
-      .replace(/\*\*([^*\n]+(?:\*(?!\*)[^*\n]*)*)\*\*/g, '<strong>$1</strong>')
-      .replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
-    
-    // Step 3: Split into blocks by double newlines to handle paragraphs
+    // Step 2: Split into blocks by double newlines to handle paragraphs
     const blocks = html.split(/\n\s*\n/);
     const processedBlocks = blocks.map(block => {
       block = block.trim();
@@ -249,7 +244,33 @@ export function formatTextToHTML(text) {
         return block;
       }
       
-      // Handle lists
+      // Handle AI-generated question patterns (multiple **title:** in one block)
+      const questionMatches = block.match(/\*\*[^*]+\*\*:/g);
+      if (questionMatches && questionMatches.length > 1) {
+        // Split this block on the **title:** pattern and convert to list
+        const parts = block.split(/(\*\*[^*]+\*\*:)/g).filter(part => part.trim());
+        let listItems = [];
+        
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i].includes('**') && parts[i].includes(':')) {
+            const title = parts[i].replace(/\*\*/g, '');
+            const content = parts[i + 1] ? parts[i + 1].trim() : '';
+            listItems.push(`<li><strong>${title}</strong> ${content}</li>`);
+            i++; // Skip the content part
+          }
+        }
+        
+        if (listItems.length > 0) {
+          return `<ul>${listItems.join('')}</ul>`;
+        }
+      }
+      
+      // Process bold and italic text for this block
+      block = block
+        .replace(/\*\*([^*\n]+(?:\*(?!\*)[^*\n]*)*)\*\*/g, '<strong>$1</strong>')
+        .replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
+      
+      // Handle traditional lists
       if (block.includes('\n') && /^[-•]|\d+\./.test(block)) {
         let listHtml = block
           .replace(/^(\d+\.)\s+(.+)$/gm, '<li>$2</li>')
@@ -268,17 +289,17 @@ export function formatTextToHTML(text) {
       return `<p>${paragraphContent}</p>`;
     });
     
-    // Step 4: Join all blocks and clean up
-    html = processedBlocks.filter(block => block).join('\n');
+    // Step 5: Join all blocks and clean up
+    let html_result = processedBlocks.filter(block => block).join('\n');
     
-    // Step 5: Clean up any remaining issues
-    html = html
+    // Step 6: Clean up any remaining issues
+    html_result = html_result
       .replace(/<p><\/p>/g, '')
       .replace(/<p>\s*<\/p>/g, '')
       .replace(/\n+/g, '\n')
       .trim();
     
-    return html;
+    return html_result;
     
   } catch (error) {
     console.error('formatTextToHTML error:', error);
