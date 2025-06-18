@@ -225,32 +225,58 @@ export function formatTextToHTML(text) {
   if (!text) return '';
   
   try {
-    let html = text
-      // Convert **bold** to <strong>
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Convert *italic* to <em>
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Convert numbered lists (1. item) to HTML lists
-      .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
-      // Convert bullet points (- item or • item) to HTML lists
-      .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
-      // Convert line breaks to <br> but preserve paragraph structure
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>');
+    let html = text;
     
-    // Wrap consecutive <li> elements in <ul> tags
-    html = html.replace(/(<li>.*?<\/li>)(?:\s*<br>)*(?=<li>)/gs, '$1');
-    html = html.replace(/(<li>.*?<\/li>)(?:\s*<br>)*(?!<li>)/gs, '</ul>$1');
-    html = html.replace(/(<li>.*?<\/li>)/s, '<ul>$1</ul>');
+    // Step 1: Process headers first (before any other formatting)
+    html = html
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>');
     
-    // Wrap in paragraph tags if it doesn't start with a block element
-    if (!html.startsWith('<ul>') && !html.startsWith('<li>') && !html.startsWith('<p>')) {
-      html = `<p>${html}</p>`;
-    }
+    // Step 2: Process bold and italic text
+    html = html
+      .replace(/\*\*([^*\n]+(?:\*(?!\*)[^*\n]*)*)\*\*/g, '<strong>$1</strong>')
+      .replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>');
     
-    // Clean up extra paragraph tags
-    html = html.replace(/<p><\/p>/g, '');
-    html = html.replace(/<p>\s*<br>\s*<\/p>/g, '');
+    // Step 3: Split into blocks by double newlines to handle paragraphs
+    const blocks = html.split(/\n\s*\n/);
+    const processedBlocks = blocks.map(block => {
+      block = block.trim();
+      if (!block) return '';
+      
+      // If it's already a header, return as-is
+      if (block.startsWith('<h1>') || block.startsWith('<h2>') || block.startsWith('<h3>')) {
+        return block;
+      }
+      
+      // Handle lists
+      if (block.includes('\n') && /^[-•]|\d+\./.test(block)) {
+        let listHtml = block
+          .replace(/^(\d+\.)\s+(.+)$/gm, '<li>$2</li>')
+          .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
+          .replace(/\n/g, '\n');
+        
+        // Wrap in ul tags if we have list items
+        if (listHtml.includes('<li>')) {
+          listHtml = '<ul>' + listHtml.replace(/\n/g, '') + '</ul>';
+        }
+        return listHtml;
+      }
+      
+      // Regular paragraph - convert single newlines to <br>
+      const paragraphContent = block.replace(/\n/g, '<br>');
+      return `<p>${paragraphContent}</p>`;
+    });
+    
+    // Step 4: Join all blocks and clean up
+    html = processedBlocks.filter(block => block).join('\n');
+    
+    // Step 5: Clean up any remaining issues
+    html = html
+      .replace(/<p><\/p>/g, '')
+      .replace(/<p>\s*<\/p>/g, '')
+      .replace(/\n+/g, '\n')
+      .trim();
     
     return html;
     
