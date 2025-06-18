@@ -769,17 +769,11 @@ body {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--surface-200);
   overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.results:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--surface-300);
 }
 
 .results-header {
   background: linear-gradient(135deg, var(--surface-50) 0%, var(--surface-100) 100%);
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--surface-200);
   display: flex;
   justify-content: space-between;
@@ -802,35 +796,30 @@ body {
 }
 
 .results-content {
-  padding: var(--space-6);
+  padding: var(--space-5);
   max-height: 500px;
   overflow-y: auto;
 }
 
-/* Section Cards */
+/* Simplified Section Design - Remove Card Nesting */
 .section {
-  background: var(--surface-0);
-  border: 1px solid var(--surface-200);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  margin-bottom: var(--space-5);
-  box-shadow: var(--shadow-xs);
-  transition: all 0.2s ease;
-}
-
-.section:hover {
-  box-shadow: var(--shadow-sm);
-  border-color: var(--surface-300);
+  margin-bottom: var(--space-6);
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .section h4 {
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--text-primary);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--surface-100);
 }
 
 .section:last-child {
@@ -846,31 +835,12 @@ body {
 }
 
 .metric-card {
-  background: var(--surface-50);
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
+  background: var(--surface-0);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
   text-align: center;
   border: 1px solid var(--surface-200);
-  box-shadow: var(--shadow-xs);
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.metric-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
-}
-
-.metric-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--primary-200, var(--surface-300));
+  border-top: 3px solid var(--primary-500);
 }
 
 .metric-value {
@@ -913,27 +883,20 @@ body {
   background: rgba(102, 126, 234, 0.05);
 }
 
-/* Assessment */
+/* Assessment - Simplified */
 .assessment-card {
-  background: var(--surface-0);
+  background: var(--surface-50);
   border: 1px solid var(--surface-200);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
   margin-bottom: var(--space-4);
-  box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
-}
-
-.assessment-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--surface-300);
 }
 
 .assessment-score {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-5);
-  margin-bottom: var(--space-4);
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 /* Modern Score Circle with Progress Ring */
@@ -1028,11 +991,11 @@ body {
 }
 
 .assessment-suggestions {
-  background: var(--surface-50);
-  border: 1px solid var(--surface-200);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  border-left: 4px solid var(--primary-500);
+  background: var(--primary-50);
+  border-left: 3px solid var(--primary-500);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 .assessment-suggestions strong {
@@ -1049,30 +1012,12 @@ body {
 }
 
 .recommendation-item {
-  background: var(--surface-0);
+  background: var(--surface-50);
   border: 1px solid var(--surface-200);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  box-shadow: var(--shadow-xs);
-  transition: all 0.2s ease;
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
   position: relative;
-  overflow: hidden;
-}
-
-.recommendation-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--confidence-color, var(--primary-500));
-}
-
-.recommendation-item:hover {
-  box-shadow: var(--shadow-sm);
-  border-color: var(--surface-300);
-  transform: translateY(-1px);
+  border-left: 4px solid var(--confidence-color, var(--primary-500));
 }
 
 .recommendation-header {
