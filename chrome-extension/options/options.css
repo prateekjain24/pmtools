@@ -369,60 +369,65 @@ body {
   color: var(--text-muted);
 }
 
-/* Environment Presets */
-.preset-buttons {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.btn-preset {
-  background: var(--background);
-  border: 2px solid var(--border-color);
+/* Environment Display */
+.environment-display {
+  background: var(--surface-50);
+  border: 1px solid var(--surface-200);
   border-radius: var(--radius);
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: left;
+  padding: 20px;
+  margin-bottom: 16px;
 }
 
-.btn-preset:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
-}
-
-.btn-preset.active {
-  border-color: var(--primary-color);
-  background: rgba(102, 126, 234, 0.05);
-}
-
-.preset-name {
-  font-weight: 600;
-  color: var(--text-color);
-  margin-bottom: 4px;
-}
-
-.preset-url {
-  font-size: 13px;
-  color: var(--text-muted);
-  font-family: monospace;
-}
-
-/* Connection Test */
-.connection-test {
+.env-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-top: 8px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-200);
 }
 
-.connection-status {
+.env-info:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.env-label {
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.env-value {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  background: var(--surface-0);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--surface-200);
+}
+
+.env-status {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--text-sm);
+}
+
+.env-help {
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.env-help p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
 }
 
 .status-indicator {

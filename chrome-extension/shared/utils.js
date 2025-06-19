@@ -1,6 +1,6 @@
 // Utility functions for PM Tools Chrome Extension
 
-import { STORAGE_KEYS, STATISTICAL_DEFAULTS } from './constants.js';
+import { STORAGE_KEYS, STATISTICAL_DEFAULTS, DEFAULT_USER_PREFERENCES, getCurrentEnvironment } from './constants.js';
 
 // Chrome Storage Utilities
 export async function getStorageData(key) {
@@ -48,21 +48,99 @@ export async function loadFormData(formId) {
   return null;
 }
 
-// Configuration Utilities
-export async function getConfiguration() {
-  const config = await getStorageData(STORAGE_KEYS.config);
+// User Preferences Utilities (New simplified approach)
+export async function getUserPreferences() {
+  let preferences = await getStorageData(STORAGE_KEYS.userPreferences);
+  
+  // Migration: If no new preferences, try to migrate from old config
+  if (!preferences) {
+    preferences = await migrateFromOldConfig();
+  }
+  
+  // Ensure we have complete preferences with defaults
   return {
-    apiHostname: config?.apiHostname || 'http://localhost:8000',
-    timeout: config?.timeout || 30000,
-    retryAttempts: config?.retryAttempts || 3,
-    retryDelay: config?.retryDelay || 1000,
-    statisticalDefaults: config?.statisticalDefaults || STATISTICAL_DEFAULTS,
-    theme: config?.theme || 'light'
+    statisticalDefaults: {
+      ...DEFAULT_USER_PREFERENCES.statisticalDefaults,
+      ...(preferences?.statisticalDefaults || {})
+    },
+    userExperience: {
+      ...DEFAULT_USER_PREFERENCES.userExperience,
+      ...(preferences?.userExperience || {})
+    }
+  };
+}
+
+export async function saveUserPreferences(preferences) {
+  return setStorageData(STORAGE_KEYS.userPreferences, preferences);
+}
+
+// Migration function to convert old config to new preferences
+async function migrateFromOldConfig() {
+  const oldConfig = await getStorageData(STORAGE_KEYS.config);
+  if (!oldConfig) return null;
+  
+  console.log('🔄 Migrating old configuration to new user preferences format');
+  
+  const newPreferences = {
+    statisticalDefaults: {
+      statistical_power: oldConfig.statisticalDefaults?.statistical_power || STATISTICAL_DEFAULTS.statistical_power,
+      significance_level: oldConfig.statisticalDefaults?.significance_level || STATISTICAL_DEFAULTS.significance_level,
+      variants: oldConfig.statisticalDefaults?.variants || STATISTICAL_DEFAULTS.variants,
+      mde_type: oldConfig.statisticalDefaults?.mde_type || STATISTICAL_DEFAULTS.mde_type
+    },
+    userExperience: {
+      theme: oldConfig.theme || 'light',
+      autoSave: oldConfig.autoSave !== false, // Default to true
+      clearOnSuccess: oldConfig.clearOnSuccess || false,
+      showTooltips: oldConfig.showTooltips !== false, // Default to true
+      exportFormat: oldConfig.exportFormat || 'json'
+    }
+  };
+  
+  // Save migrated preferences and remove old config
+  await saveUserPreferences(newPreferences);
+  console.log('✅ Configuration migrated successfully');
+  
+  return newPreferences;
+}
+
+// Legacy support - deprecated but maintained for backward compatibility
+export async function getConfiguration() {
+  console.log('⚠️ getConfiguration() is deprecated - use getUserPreferences() instead');
+  const preferences = await getUserPreferences();
+  const envConfig = getCurrentEnvironment();
+  
+  // Return old format for backward compatibility
+  return {
+    apiHostname: envConfig.apiHostname, // Now from environment
+    timeout: envConfig.timeout, // Now from environment
+    retryAttempts: envConfig.retryAttempts, // Now from environment
+    retryDelay: envConfig.retryDelay, // Now from environment
+    statisticalDefaults: preferences.statisticalDefaults,
+    theme: preferences.userExperience.theme,
+    autoSave: preferences.userExperience.autoSave,
+    clearOnSuccess: preferences.userExperience.clearOnSuccess,
+    showTooltips: preferences.userExperience.showTooltips,
+    exportFormat: preferences.userExperience.exportFormat
   };
 }
 
 export async function saveConfiguration(config) {
-  return setStorageData(STORAGE_KEYS.config, config);
+  console.log('⚠️ saveConfiguration() is deprecated - use saveUserPreferences() instead');
+  
+  // Convert old format to new preferences format
+  const preferences = {
+    statisticalDefaults: config.statisticalDefaults || STATISTICAL_DEFAULTS,
+    userExperience: {
+      theme: config.theme || 'light',
+      autoSave: config.autoSave !== false,
+      clearOnSuccess: config.clearOnSuccess || false,
+      showTooltips: config.showTooltips !== false,
+      exportFormat: config.exportFormat || 'json'
+    }
+  };
+  
+  return saveUserPreferences(preferences);
 }
 
 // Validation Utilities

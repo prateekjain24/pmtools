@@ -1,13 +1,60 @@
 // Constants for PM Tools Chrome Extension
 
-export const DEFAULT_CONFIG = {
-  apiHostname: 'http://localhost:8000',
-  timeout: 45000, // Increased default timeout to 45 seconds
-  retryAttempts: 3,
-  retryDelay: 1000
+// Environment Auto-Detection
+const detectEnvironment = () => {
+  // For Chrome extension, we can detect based on various factors
+  // In a real deployment, this could be build-time configuration
+  
+  // Check if we're in development mode (common patterns)
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+    const manifest = chrome.runtime.getManifest();
+    if (manifest.version_name && manifest.version_name.includes('dev')) {
+      return 'local';
+    }
+  }
+  
+  // Check for localhost or common dev patterns
+  if (typeof location !== 'undefined') {
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      return 'local';
+    }
+    if (location.hostname.includes('staging') || location.hostname.includes('dev')) {
+      return 'staging';
+    }
+  }
+  
+  // Default to local for development, could be changed to production for release builds
+  return 'local';
 };
 
-// Endpoint-specific timeout configurations
+// Environment-specific Configuration (Technical - Not User Configurable)
+export const ENVIRONMENT_CONFIG = {
+  local: {
+    name: 'Local Development',
+    apiHostname: 'http://localhost:8000',
+    description: 'Local development server'
+  },
+  staging: {
+    name: 'Staging',
+    apiHostname: 'https://staging-api.company.com',
+    description: 'Staging environment'
+  },
+  production: {
+    name: 'Production',
+    apiHostname: 'https://api.company.com',
+    description: 'Production environment'
+  }
+};
+
+// Technical Configuration (Hardcoded - Not User Configurable)
+export const TECHNICAL_CONFIG = {
+  timeout: 45000, // 45 seconds default
+  retryAttempts: 3,
+  retryDelay: 1000,
+  maxRetryDelay: 5000
+};
+
+// Endpoint-specific timeout configurations (Optimized - Not User Configurable)
 export const ENDPOINT_TIMEOUTS = {
   '/health': 10000,           // 10 seconds for health checks
   '/validate/setup': 30000,   // 30 seconds for validation
@@ -15,29 +62,39 @@ export const ENDPOINT_TIMEOUTS = {
   '/llm/status': 15000        // 15 seconds for LLM status
 };
 
-export const ENVIRONMENT_PRESETS = {
-  local: {
-    name: 'Local Development',
-    hostname: 'http://localhost:8000',
-    description: 'Local development server'
-  },
-  staging: {
-    name: 'Staging',
-    hostname: 'https://staging-api.company.com',
-    description: 'Staging environment'
-  },
-  production: {
-    name: 'Production',
-    hostname: 'https://api.company.com',
-    description: 'Production environment'
-  }
+// Get Current Environment Configuration
+export const getCurrentEnvironment = () => {
+  const env = detectEnvironment();
+  return {
+    environment: env,
+    ...ENVIRONMENT_CONFIG[env],
+    ...TECHNICAL_CONFIG
+  };
 };
 
+// Legacy Support - for backward compatibility during transition
+export const DEFAULT_CONFIG = getCurrentEnvironment();
+
+// User Preferences (Configurable in Settings)
 export const STATISTICAL_DEFAULTS = {
   statistical_power: 0.80,
   significance_level: 0.05,
   variants: 2,
   mde_type: 'relative'
+};
+
+export const USER_EXPERIENCE_DEFAULTS = {
+  theme: 'light',
+  autoSave: true,
+  clearOnSuccess: false,
+  showTooltips: true,
+  exportFormat: 'json'
+};
+
+// Combined User Preferences Schema
+export const DEFAULT_USER_PREFERENCES = {
+  statisticalDefaults: STATISTICAL_DEFAULTS,
+  userExperience: USER_EXPERIENCE_DEFAULTS
 };
 
 export const API_ENDPOINTS = {
@@ -48,7 +105,8 @@ export const API_ENDPOINTS = {
 };
 
 export const STORAGE_KEYS = {
-  config: 'pmtools_config',
+  userPreferences: 'pmtools_user_preferences', // New simplified preferences
+  config: 'pmtools_config', // Legacy - for migration
   formData: 'pmtools_form_data',
   recentResults: 'pmtools_recent_results'
 };

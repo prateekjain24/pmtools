@@ -1,32 +1,33 @@
 // API Client for PM Tools Chrome Extension
 // Based on streamlit_app/components/api_client.py
 
-import { DEFAULT_CONFIG, API_ENDPOINTS, ERROR_MESSAGES, ENDPOINT_TIMEOUTS } from './constants.js';
-import { getStorageData } from './utils.js';
+import { getCurrentEnvironment, API_ENDPOINTS, ERROR_MESSAGES, ENDPOINT_TIMEOUTS } from './constants.js';
 
 export class APIClient {
   constructor() {
-    this.baseUrl = DEFAULT_CONFIG.apiHostname;
-    this.timeout = DEFAULT_CONFIG.timeout;
-    this.retryAttempts = DEFAULT_CONFIG.retryAttempts;
-    this.retryDelay = DEFAULT_CONFIG.retryDelay;
+    // Use environment auto-detection instead of user configuration
+    const envConfig = getCurrentEnvironment();
     
-    // Load configuration from storage
-    this.loadConfig();
+    this.baseUrl = envConfig.apiHostname;
+    this.timeout = envConfig.timeout;
+    this.retryAttempts = envConfig.retryAttempts;
+    this.retryDelay = envConfig.retryDelay;
+    this.environment = envConfig.environment;
+    
+    console.log(`🌍 PM Tools API Client initialized for ${this.environment} environment: ${this.baseUrl}`);
   }
 
+  // Remove loadConfig method - no longer needed
+  // Configuration is now automatic based on environment detection
+
+  // Legacy method for backward compatibility - now does nothing
   async loadConfig() {
-    try {
-      const config = await getStorageData('pmtools_config');
-      if (config) {
-        this.baseUrl = config.apiHostname || DEFAULT_CONFIG.apiHostname;
-        this.timeout = config.timeout || DEFAULT_CONFIG.timeout;
-        this.retryAttempts = config.retryAttempts || DEFAULT_CONFIG.retryAttempts;
-        this.retryDelay = config.retryDelay || DEFAULT_CONFIG.retryDelay;
-      }
-    } catch (error) {
-      console.error('Failed to load API configuration:', error);
-    }
+    console.log('⚠️ loadConfig() is deprecated - using environment auto-detection');
+  }
+
+  // Legacy method for backward compatibility - now does nothing  
+  updateConfig(config) {
+    console.log('⚠️ updateConfig() is deprecated - using environment auto-detection');
   }
 
   async makeRequest(endpoint, options = {}) {

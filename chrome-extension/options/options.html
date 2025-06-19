@@ -31,132 +31,35 @@
     <!-- Main Content -->
     <div class="content">
       
-      <!-- API Configuration Section -->
+      <!-- Environment Status Section -->
       <div class="section">
         <div class="section-header">
-          <h2>🔗 API Configuration</h2>
-          <p>Connect to your PM Tools API server (the brain behind the operation!)</p>
+          <h2>🌍 Environment Status</h2>
+          <p>Automatically configured based on your environment (no setup required!)</p>
         </div>
         
         <div class="section-content">
-          <form class="form" id="configForm">
-            
-            <!-- Environment Presets -->
-            <div class="form-group">
-              <label class="form-label">Environment Presets</label>
-              <div class="preset-buttons">
-                <button type="button" class="btn-preset" data-preset="local">
-                  <div class="preset-name">Local Development</div>
-                  <div class="preset-url">http://localhost:8000</div>
-                </button>
-                <button type="button" class="btn-preset" data-preset="staging">
-                  <div class="preset-name">Staging</div>
-                  <div class="preset-url">https://staging-api.company.com</div>
-                </button>
-                <button type="button" class="btn-preset" data-preset="production">
-                  <div class="preset-name">Production</div>
-                  <div class="preset-url">https://api.company.com</div>
-                </button>
+          <div class="environment-display">
+            <div class="env-info">
+              <div class="env-label">Current Environment:</div>
+              <div class="env-value" id="currentEnvironment">Loading...</div>
+            </div>
+            <div class="env-info">
+              <div class="env-label">API Server:</div>
+              <div class="env-value" id="currentApiServer">Loading...</div>
+            </div>
+            <div class="env-info">
+              <div class="env-label">Connection Status:</div>
+              <div class="env-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span class="status-text" id="statusText">Checking...</span>
               </div>
             </div>
-
-            <!-- Custom API Hostname -->
-            <div class="form-group">
-              <label for="apiHostname" class="form-label">
-                API Server URL 🌐 <span class="required">*</span>
-                <button class="tooltip-trigger" data-tooltip="Where your PM Tools API lives. Include http:// or https:// - we're not mind readers!" aria-label="Help">ℹ️</button>
-              </label>
-              <input 
-                type="url" 
-                id="apiHostname" 
-                name="apiHostname" 
-                class="form-input" 
-                placeholder="http://localhost:8000 (or wherever your server lives!)"
-                required
-              />
-              <div class="form-help">
-                Enter the full URL where your PM Tools API is hosted. Don't forget the protocol!
-              </div>
-            </div>
-
-            <!-- Connection Test -->
-            <div class="form-group">
-              <label class="form-label">Connection Test</label>
-              <div class="connection-test">
-                <button type="button" class="btn btn-secondary" id="testConnectionBtn">
-                  <span class="btn-text">Test Connection</span>
-                  <span class="btn-spinner hidden"></span>
-                </button>
-                <div class="connection-status" id="connectionStatus">
-                  <span class="status-indicator" id="statusIndicator"></span>
-                  <span class="status-text" id="statusText">Click "Test Connection" to verify</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Advanced Connection Settings -->
-            <div class="collapsible">
-              <button type="button" class="collapsible-header" id="advancedToggle">
-                <span>Advanced Connection Settings</span>
-                <span class="collapsible-arrow">▼</span>
-              </button>
-              <div class="collapsible-content" id="advancedContent">
-                
-                <div class="form-group">
-                  <label for="timeout" class="form-label">
-                    Request Timeout ⏱️ (milliseconds)
-                    <button class="tooltip-trigger" data-tooltip="How long to wait before giving up on your API. AI analysis can take a while, so don't be too impatient!" aria-label="Help">ℹ️</button>
-                  </label>
-                  <input 
-                    type="number" 
-                    id="timeout" 
-                    name="timeout" 
-                    class="form-input" 
-                    min="5000"
-                    max="120000"
-                    step="1000"
-                    value="30000"
-                  />
-                  <div class="form-help">
-                    Recommended: 30000ms (30 seconds) - longer for AI-powered analysis!
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="retryAttempts" class="form-label">
-                    Retry Attempts
-                    <button class="tooltip-trigger" data-tooltip="Number of times to retry failed requests" aria-label="Help">ℹ️</button>
-                  </label>
-                  <select id="retryAttempts" name="retryAttempts" class="form-select">
-                    <option value="1">1 (No retry)</option>
-                    <option value="2">2</option>
-                    <option value="3" selected>3 (Recommended)</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="retryDelay" class="form-label">
-                    Retry Delay (milliseconds)
-                    <button class="tooltip-trigger" data-tooltip="Initial delay between retry attempts (with exponential backoff)" aria-label="Help">ℹ️</button>
-                  </label>
-                  <input 
-                    type="number" 
-                    id="retryDelay" 
-                    name="retryDelay" 
-                    class="form-input" 
-                    min="500"
-                    max="5000"
-                    step="100"
-                    value="1000"
-                  />
-                </div>
-
-              </div>
-            </div>
-
-          </form>
+          </div>
+          
+          <div class="env-help">
+            <p>✨ <strong>Zero configuration required!</strong> PM Tools automatically detects your environment and connects to the appropriate API server. Focus on your experiments, not on technical setup.</p>
+          </div>
         </div>
       </div>
 
