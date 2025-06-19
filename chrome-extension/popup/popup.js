@@ -141,6 +141,13 @@ class PopupManager {
 
     // Auto-save form data
     this.setupAutoSave();
+    
+    // Scroll to top buttons
+    document.querySelectorAll('.scroll-to-top').forEach(button => {
+      button.addEventListener('click', () => {
+        document.body.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
   }
 
   initializeUI() {
@@ -281,7 +288,12 @@ class PopupManager {
       this.displayValidateResults(response);
       this.currentResults = { type: 'validate', data: response };
       
-      showMessage(messagesEl, '🎯 Setup validated! Your experiment is ready to make stakeholders happy', 'success');
+      showMessage(messagesEl, '🎯 Setup validated! Check your results below - ready to impress stakeholders! 📋', 'success');
+      
+      // Auto-scroll to results with a slight delay for better UX
+      setTimeout(() => {
+        this.scrollToResults('validate');
+      }, 300);
       
     } catch (error) {
       console.error('Validation failed:', error);
@@ -317,7 +329,7 @@ class PopupManager {
       btnSpinner.classList.remove('hidden');
       
       // Show informative message for analyze endpoint
-      showMessage(messagesEl, '🧠 AI is working harder than a PM during release week... This may take 30-90 seconds (perfect coffee break time!)', 'info', 0);
+      showMessage(messagesEl, '🧠 AI is analyzing your experiment... Results will appear below when ready! (30-90 seconds - perfect coffee break time ☕)', 'info', 0);
       
       // Save form data
       await saveFormData('analyze', formData);
@@ -330,7 +342,12 @@ class PopupManager {
       this.currentResults = { type: 'analyze', data: response };
       
       clearMessages(messagesEl);
-      showMessage(messagesEl, '✨ Analysis complete! Time to make some data-driven magic happen', 'success');
+      showMessage(messagesEl, '✨ Analysis complete! Check your results below - the insights are ready! 📊', 'success');
+      
+      // Auto-scroll to results with a slight delay for better UX
+      setTimeout(() => {
+        this.scrollToResults('analyze');
+      }, 500);
       
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -561,6 +578,9 @@ class PopupManager {
     
     contentEl.innerHTML = html;
     resultsEl.classList.remove('hidden');
+    
+    // Refresh tooltips for any new content
+    refreshTooltips();
   }
 
   displayAnalyzeResults(response) {
@@ -687,6 +707,9 @@ class PopupManager {
     
     contentEl.innerHTML = html;
     resultsEl.classList.remove('hidden');
+    
+    // Refresh tooltips for any new content
+    refreshTooltips();
   }
 
   addVariant() {
@@ -896,6 +919,26 @@ class PopupManager {
         if (variant.users) form.querySelector(`input[name="variant_${index}_users"]`).value = variant.users;
         if (variant.conversions) form.querySelector(`input[name="variant_${index}_conversions"]`).value = variant.conversions;
       });
+    }
+  }
+
+  scrollToResults(type) {
+    const resultsEl = document.getElementById(`${type}Results`);
+    if (resultsEl && !resultsEl.classList.contains('hidden')) {
+      // Add entrance animation class
+      resultsEl.classList.add('results-entrance');
+      
+      // Smooth scroll to results header
+      resultsEl.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+      
+      // Remove animation class after animation completes
+      setTimeout(() => {
+        resultsEl.classList.remove('results-entrance');
+      }, 1000);
     }
   }
 
