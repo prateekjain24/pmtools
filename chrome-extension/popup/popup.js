@@ -14,7 +14,9 @@ import {
   validateRequired,
   validateNumber,
   validateInteger,
-  formatTextToHTML
+  formatTextToHTML,
+  initializeTooltips,
+  refreshTooltips
 } from '../shared/utils.js';
 
 class PopupManager {
@@ -36,6 +38,9 @@ class PopupManager {
     
     // Initialize UI
     this.initializeUI();
+    
+    // Initialize enhanced tooltips
+    initializeTooltips();
     
     // Check API connection
     this.checkAPIConnection();
@@ -276,7 +281,7 @@ class PopupManager {
       this.displayValidateResults(response);
       this.currentResults = { type: 'validate', data: response };
       
-      showMessage(messagesEl, 'Validation completed successfully!', 'success');
+      showMessage(messagesEl, '🎯 Setup validated! Your experiment is ready to make stakeholders happy', 'success');
       
     } catch (error) {
       console.error('Validation failed:', error);
@@ -312,7 +317,7 @@ class PopupManager {
       btnSpinner.classList.remove('hidden');
       
       // Show informative message for analyze endpoint
-      showMessage(messagesEl, '🧠 AI analysis in progress... This may take 30-90 seconds.', 'info', 0);
+      showMessage(messagesEl, '🧠 AI is working harder than a PM during release week... This may take 30-90 seconds (perfect coffee break time!)', 'info', 0);
       
       // Save form data
       await saveFormData('analyze', formData);
@@ -325,7 +330,7 @@ class PopupManager {
       this.currentResults = { type: 'analyze', data: response };
       
       clearMessages(messagesEl);
-      showMessage(messagesEl, 'Analysis completed successfully!', 'success');
+      showMessage(messagesEl, '✨ Analysis complete! Time to make some data-driven magic happen', 'success');
       
     } catch (error) {
       console.error('Analysis failed:', error);
@@ -589,13 +594,36 @@ class PopupManager {
       <div class="metric-label">P-Value</div>
     </div>`;
     html += `<div class="metric-card">
-      <div class="metric-value">${response.statistical_summary.is_statistically_significant ? 'Yes' : 'No'}</div>
-      <div class="metric-label">Significant?</div>
+      <div class="metric-value">${response.statistical_summary.is_statistically_significant ? 'Yes! 🎉' : 'Not yet 😐'}</div>
+      <div class="metric-label">${response.statistical_summary.is_statistically_significant ? 'Statistically Significant' : 'Keep Testing'}</div>
     </div>`;
     html += `<div class="metric-card">
       <div class="metric-value">${formatNumber(response.statistical_summary.confidence_interval_lower, 4)} - ${formatNumber(response.statistical_summary.confidence_interval_upper, 4)}</div>
       <div class="metric-label">95% CI</div>
     </div>`;
+    html += '</div>';
+    html += '</div>';
+    
+    // PM-Friendly Interpretation
+    html += '<div class="section">';
+    html += '<h4>💡 What This Means for You</h4>';
+    html += '<div class="pm-interpretation">';
+    
+    const pValue = response.statistical_summary.p_value;
+    const isSignificant = response.statistical_summary.is_statistically_significant;
+    const lift = response.statistical_summary.relative_lift * 100;
+    
+    if (isSignificant && lift > 0) {
+      html += `<p class="interpretation-good">🎉 <strong>Good news!</strong> Your experiment shows a statistically significant improvement of ${formatPercentage(response.statistical_summary.relative_lift)}. This means the difference is likely real, not just random chance.</p>`;
+      html += `<p class="interpretation-tip">💼 <strong>PM Tip:</strong> You can confidently present this to stakeholders. The p-value of ${formatNumber(pValue, 4)} means there's less than a ${formatPercentage(pValue)} chance this is a fluke.</p>`;
+    } else if (isSignificant && lift < 0) {
+      html += `<p class="interpretation-warning">⚠️ <strong>Heads up!</strong> Your experiment shows a statistically significant <em>decrease</em> of ${formatPercentage(Math.abs(response.statistical_summary.relative_lift))}. Time to investigate what went wrong.</p>`;
+      html += `<p class="interpretation-tip">🔍 <strong>PM Tip:</strong> This is valuable learning! Consider what factors might have caused the negative impact before your next iteration.</p>`;
+    } else {
+      html += `<p class="interpretation-neutral">🤔 <strong>Inconclusive results.</strong> The ${formatPercentage(Math.abs(response.statistical_summary.relative_lift))} ${lift > 0 ? 'improvement' : 'decrease'} could just be random variation (p-value: ${formatNumber(pValue, 4)}).</p>`;
+      html += `<p class="interpretation-tip">⏰ <strong>PM Tip:</strong> You might need to run the test longer or increase your sample size. Statistical significance ≠ business significance though!</p>`;
+    }
+    
     html += '</div>';
     html += '</div>';
     
@@ -713,6 +741,9 @@ class PopupManager {
     
     container.insertAdjacentHTML('beforeend', variantHtml);
     
+    // Refresh tooltips for new elements
+    refreshTooltips();
+    
     // Update remove button state
     const removeBtn = document.getElementById('removeVariant');
     removeBtn.disabled = this.variantCount <= 2;
@@ -776,7 +807,7 @@ class PopupManager {
       downloadCSV(this.currentResults.data, filename);
     }
     
-    showMessage(document.getElementById('messages'), `Results exported as ${filename}`, 'success');
+    showMessage(document.getElementById('messages'), `📊 Results exported as ${filename} - time to make some spreadsheet magic!`, 'success');
   }
 
   setupAutoSave() {

@@ -54,16 +54,41 @@ export const STORAGE_KEYS = {
 };
 
 export const ERROR_MESSAGES = {
-  CONNECTION_FAILED: 'Unable to connect to the API server. Please check your configuration.',
-  VALIDATION_ERROR: 'Please check your input values and try again.',
-  SERVER_ERROR: 'Server error occurred. Please try again later.',
-  TIMEOUT_ERROR: 'Request timed out. Please try again or check your connection.',
-  TIMEOUT_ERROR_ANALYZE: 'Analysis is taking longer than expected. This is normal for AI-powered analysis. Please wait or try again.',
-  UNKNOWN_ERROR: 'An unexpected error occurred. Please try again.'
+  CONNECTION_FAILED: "Can't reach your API server 📡 (Is it taking a coffee break? Check your settings!)",
+  VALIDATION_ERROR: "Houston, we have an input problem 🚀 (Double-check those numbers and try again)",
+  SERVER_ERROR: 'Server hiccup detected 🤖 (Even the best APIs need a moment sometimes)',
+  TIMEOUT_ERROR: 'Request timed out ⏰ (Your connection might be slower than sprint planning)',
+  TIMEOUT_ERROR_ANALYZE: 'Your AI is working harder than a PM during release week ☕ (This is normal - maybe grab some coffee?)',
+  UNKNOWN_ERROR: 'Something unexpected happened 🎭 (Even we didn\'t see this one coming)',
+  HYPOTHESIS_TOO_VAGUE: 'Your hypothesis needs more substance than "make button prettier" 🤔 (Be specific!)',
+  CONVERSIONS_EXCEED_USERS: 'Conversions can\'t exceed users ⏰ (Unless you\'ve discovered time travel)',
+  SAMPLE_SIZE_TOO_SMALL: 'Sample size smaller than your team\'s attention span 📏 (You need more data!)',
+  MDE_TOO_AMBITIOUS: 'That MDE is more optimistic than a PM\'s initial timeline estimate 🎯 (Try something realistic)'
 };
 
 export const SUCCESS_MESSAGES = {
-  CONFIG_SAVED: 'Configuration saved successfully!',
-  CONNECTION_TEST_SUCCESS: 'API connection test successful!',
-  DATA_EXPORTED: 'Data exported successfully!'
+  CONFIG_SAVED: '⚙️ Settings saved! You\'re all set to validate like a pro',
+  CONNECTION_TEST_SUCCESS: '🎉 API connection successful! Your data pipeline is ready to roll',
+  DATA_EXPORTED: '📊 Data exported! Time to make some spreadsheet magic happen',
+  VALIDATION_SUCCESS: '🎯 Setup validated! Your experiment is ready to make stakeholders happy',
+  ANALYSIS_COMPLETE: '✨ Analysis complete! Time to make some data-driven magic happen',
+  FORM_AUTO_SAVED: '💾 Form auto-saved (because losing work is worse than losing users)',
+  HYPOTHESIS_LOOKS_GOOD: '👍 Solid hypothesis! Your stats professor would be proud'
+};
+
+export const TIP_MESSAGES = {
+  SAMPLE_SIZE_MATTERS: '🎯 Pro tip: Bigger sample size = more reliable results (but longer tests)',
+  ONE_THING_AT_TIME: '🔬 Test one thing at a time (resist the kitchen sink approach)',
+  BASELINE_IMPORTANCE: '📊 Know your baseline - it\'s the foundation of good experiments',
+  STATISTICAL_VS_PRACTICAL: '⚠️ Statistical significance ≠ business significance (math can\'t fix bad ideas)',
+  MOBILE_CONSIDERATIONS: '📱 Don\'t forget mobile users - they\'re probably half your traffic',
+  SEASONAL_EFFECTS: '📅 Consider seasonality - Black Friday results won\'t match Tuesday in March'
+};
+
+export const WARNING_MESSAGES = {
+  LOW_SAMPLE_SIZE: '🚩 Red flag: Sample size might be too small for reliable results',
+  HIGH_MDE: '⚠️ Warning: That\'s a pretty ambitious improvement target',
+  VERY_LONG_TEST: '📅 Heads up: This test will run longer than your average product roadmap',
+  MULTIPLE_VARIANTS: '🎭 Remember: More variants = more complexity (and more chances for confusion)',
+  WEEKEND_EFFECT: '📆 Consider weekday vs weekend behavior differences'
 };

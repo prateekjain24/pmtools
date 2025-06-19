@@ -35,7 +35,7 @@
       <div class="section">
         <div class="section-header">
           <h2>🔗 API Configuration</h2>
-          <p>Configure connection to your PM Tools API server</p>
+          <p>Connect to your PM Tools API server (the brain behind the operation!)</p>
         </div>
         
         <div class="section-content">
@@ -63,19 +63,19 @@
             <!-- Custom API Hostname -->
             <div class="form-group">
               <label for="apiHostname" class="form-label">
-                API Hostname <span class="required">*</span>
-                <span class="tooltip" title="Full URL including protocol (http:// or https://)">ℹ️</span>
+                API Server URL 🌐 <span class="required">*</span>
+                <button class="tooltip-trigger" data-tooltip="Where your PM Tools API lives. Include http:// or https:// - we're not mind readers!" aria-label="Help">ℹ️</button>
               </label>
               <input 
                 type="url" 
                 id="apiHostname" 
                 name="apiHostname" 
                 class="form-input" 
-                placeholder="http://localhost:8000"
+                placeholder="http://localhost:8000 (or wherever your server lives!)"
                 required
               />
               <div class="form-help">
-                Enter the full URL to your PM Tools API server
+                Enter the full URL where your PM Tools API is hosted. Don't forget the protocol!
               </div>
             </div>
 
@@ -104,8 +104,8 @@
                 
                 <div class="form-group">
                   <label for="timeout" class="form-label">
-                    Request Timeout (milliseconds)
-                    <span class="tooltip" title="Maximum time to wait for API responses">ℹ️</span>
+                    Request Timeout ⏱️ (milliseconds)
+                    <button class="tooltip-trigger" data-tooltip="How long to wait before giving up on your API. AI analysis can take a while, so don't be too impatient!" aria-label="Help">ℹ️</button>
                   </label>
                   <input 
                     type="number" 
@@ -118,14 +118,14 @@
                     value="30000"
                   />
                   <div class="form-help">
-                    Recommended: 30000ms (30 seconds)
+                    Recommended: 30000ms (30 seconds) - longer for AI-powered analysis!
                   </div>
                 </div>
 
                 <div class="form-group">
                   <label for="retryAttempts" class="form-label">
                     Retry Attempts
-                    <span class="tooltip" title="Number of times to retry failed requests">ℹ️</span>
+                    <button class="tooltip-trigger" data-tooltip="Number of times to retry failed requests" aria-label="Help">ℹ️</button>
                   </label>
                   <select id="retryAttempts" name="retryAttempts" class="form-select">
                     <option value="1">1 (No retry)</option>
@@ -139,7 +139,7 @@
                 <div class="form-group">
                   <label for="retryDelay" class="form-label">
                     Retry Delay (milliseconds)
-                    <span class="tooltip" title="Initial delay between retry attempts (with exponential backoff)">ℹ️</span>
+                    <button class="tooltip-trigger" data-tooltip="Initial delay between retry attempts (with exponential backoff)" aria-label="Help">ℹ️</button>
                   </label>
                   <input 
                     type="number" 
@@ -164,7 +164,7 @@
       <div class="section">
         <div class="section-header">
           <h2>📊 Statistical Defaults</h2>
-          <p>Set default values for statistical parameters</p>
+          <p>Set your preferred statistical parameters (the numbers that make experiments work!)</p>
         </div>
         
         <div class="section-content">
@@ -172,8 +172,8 @@
             
             <div class="form-group">
               <label for="defaultPower" class="form-label">
-                Default Statistical Power
-                <span class="tooltip" title="Probability of detecting an effect if it truly exists">ℹ️</span>
+                Default Statistical Power 💪
+                <button class="tooltip-trigger" data-tooltip="How likely you are to catch a real difference if it exists. 80% is the gold standard - like having good vision for spotting real changes!" aria-label="Help">ℹ️</button>
               </label>
               <select id="defaultPower" name="defaultPower" class="form-select">
                 <option value="0.70">70%</option>
@@ -186,8 +186,8 @@
 
             <div class="form-group">
               <label for="defaultSignificance" class="form-label">
-                Default Significance Level
-                <span class="tooltip" title="Probability of Type I error (false positive)">ℹ️</span>
+                Default Significance Level 🎯
+                <button class="tooltip-trigger" data-tooltip="How strict you want to be about calling something 'significant'. 5% means you're okay with a 1-in-20 chance of being wrong. Lower = more strict!" aria-label="Help">ℹ️</button>
               </label>
               <select id="defaultSignificance" name="defaultSignificance" class="form-select">
                 <option value="0.01">1%</option>
@@ -210,19 +210,19 @@
 
             <div class="form-group">
               <label for="defaultMdeType" class="form-label">
-                Default MDE Type
-                <span class="tooltip" title="Preferred way to specify Minimum Detectable Effect">ℹ️</span>
+                Default MDE Type 🎯
+                <button class="tooltip-trigger" data-tooltip="How you prefer to think about improvements. Relative is like 'X% better' while absolute is 'X points higher'. Most PMs think in percentages!" aria-label="Help">ℹ️</button>
               </label>
               <div class="radio-group">
                 <label class="radio-label">
                   <input type="radio" name="defaultMdeType" value="relative" checked>
                   <span class="radio-custom"></span>
-                  Relative (%) - e.g., 10% improvement
+                  Relative (%) - "10% better than before"
                 </label>
                 <label class="radio-label">
                   <input type="radio" name="defaultMdeType" value="absolute">
                   <span class="radio-custom"></span>
-                  Absolute - e.g., 0.01 difference
+                  Absolute - "2 percentage points higher"
                 </label>
               </div>
             </div>
@@ -235,7 +235,7 @@
       <div class="section">
         <div class="section-header">
           <h2>⚙️ User Experience</h2>
-          <p>Customize your PM Tools experience</p>
+          <p>Make PM Tools work the way you do (because every PM has their preferences!)</p>
         </div>
         
         <div class="section-content">
@@ -256,17 +256,17 @@
                 <label class="checkbox-label">
                   <input type="checkbox" id="autoSave" name="autoSave" checked>
                   <span class="checkbox-custom"></span>
-                  Auto-save form data
+                  Auto-save form data (because losing work is worse than losing users 💾)
                 </label>
                 <label class="checkbox-label">
                   <input type="checkbox" id="clearOnSuccess" name="clearOnSuccess">
                   <span class="checkbox-custom"></span>
-                  Clear forms after successful submission
+                  Clear forms after successful submission (fresh start for new experiments 🧹)
                 </label>
                 <label class="checkbox-label">
                   <input type="checkbox" id="showTooltips" name="showTooltips" checked>
                   <span class="checkbox-custom"></span>
-                  Show helpful tooltips
+                  Show helpful tooltips (we recommend keeping these - they're actually useful! 💡)
                 </label>
               </div>
             </div>
@@ -297,28 +297,28 @@
             
             <div class="about-item">
               <h4>🎯 Purpose</h4>
-              <p>PM Tools provides Product Managers with instant access to statistical validation and AI-powered insights for A/B testing experiments.</p>
+              <p>PM Tools is your statistical sidekick! We provide Product Managers with instant access to statistical validation and AI-powered insights for A/B testing experiments. Think of us as your friendly neighborhood data scientist who actually speaks PM.</p>
             </div>
 
             <div class="about-item">
               <h4>🔑 Key Features</h4>
               <ul>
-                <li>Experiment setup validation with statistical power analysis</li>
-                <li>Results interpretation with AI-generated insights</li>
-                <li>Sample size and duration calculations</li>
-                <li>Trade-off analysis for different effect sizes</li>
-                <li>Export capabilities for sharing results</li>
+                <li>Experiment setup validation with statistical power analysis (no more guessing!)</li>
+                <li>Results interpretation with AI-generated insights (plain English, not statistics jargon)</li>
+                <li>Sample size and duration calculations (know before you go)</li>
+                <li>Trade-off analysis for different effect sizes (what if scenarios)</li>
+                <li>Export capabilities for sharing results (spreadsheet-ready data)</li>
               </ul>
             </div>
 
             <div class="about-item">
               <h4>🔗 API Integration</h4>
-              <p>This extension connects to a PM Tools API server that provides the statistical calculations and AI analysis. Make sure your API server is running and accessible from your browser.</p>
+              <p>This extension connects to a PM Tools API server that crunches the numbers and runs the AI analysis. Make sure your API server is running and accessible from your browser (it's the brains of the operation!).</p>
             </div>
 
             <div class="about-item">
               <h4>🔒 Privacy</h4>
-              <p>All data processing happens on your API server. This extension does not collect, store, or transmit any personal data to third parties.</p>
+              <p>All data processing happens on your API server. This extension doesn't collect, store, or transmit any personal data to third parties. Your experiment data stays yours!</p>
             </div>
 
             <div class="version-info">

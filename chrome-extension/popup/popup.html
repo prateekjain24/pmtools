@@ -58,14 +58,14 @@
         <!-- Hypothesis -->
         <div class="form-group">
           <label for="hypothesis" class="form-label">
-            Hypothesis <span class="required">*</span>
-            <span class="tooltip" title="Clear, testable prediction about the expected outcome">ℹ️</span>
+            Your Hypothesis 🔬 <span class="required">*</span>
+            <button class="tooltip-trigger" data-tooltip="Be specific! More than 'make it better' - tell us what you're changing and what you expect to happen. Your future self will thank you." aria-label="Help">ℹ️</button>
           </label>
           <textarea 
             id="hypothesis" 
             name="hypothesis" 
             class="form-textarea" 
-            placeholder="e.g., Changing the CTA button color from blue to green will increase conversion rate by at least 5%"
+            placeholder="e.g., New checkout flow will reduce cart abandonment by 15% because it removes the forced account creation step (goodbye, angry users!)"
             rows="3"
             required
           ></textarea>
@@ -74,14 +74,15 @@
         <!-- Primary Metric -->
         <div class="form-group">
           <label for="metricName" class="form-label">
-            Primary Metric <span class="required">*</span>
+            Primary Metric 📊 <span class="required">*</span>
+            <button class="tooltip-trigger" data-tooltip="The one metric that rules them all. Focus on what matters most for this experiment - you can track others separately." aria-label="Help">ℹ️</button>
           </label>
           <input 
             type="text" 
             id="metricName" 
             name="metricName" 
             class="form-input" 
-            placeholder="e.g., Conversion Rate"
+            placeholder="e.g., Conversion Rate (the metric that pays the bills)"
             required
           />
         </div>
@@ -89,15 +90,15 @@
         <!-- Baseline Conversion Rate -->
         <div class="form-group">
           <label for="baselineRate" class="form-label">
-            Baseline Conversion Rate <span class="required">*</span>
-            <span class="tooltip" title="Current conversion rate as a decimal (e.g., 0.05 for 5%)">ℹ️</span>
+            Current Reality Check 📈 <span class="required">*</span>
+            <button class="tooltip-trigger" data-tooltip="Your current conversion rate as a decimal. E.g., 0.05 for 5%, 0.12 for 12%. This is your starting point - be honest about where you are now!" aria-label="Help">ℹ️</button>
           </label>
           <input 
             type="number" 
             id="baselineRate" 
             name="baselineRate" 
             class="form-input" 
-            placeholder="e.g. 0.05 for 5% conversion rate"
+            placeholder="e.g., 0.05 (that's 5% - not as scary as it sounds!)"
             step="0.001"
             min="0"
             max="1"
@@ -107,17 +108,20 @@
 
         <!-- MDE Type Selection -->
         <div class="form-group">
-          <label class="form-label">Minimum Detectable Effect (MDE)</label>
+          <label class="form-label">
+            Minimum Detectable Effect 🎯
+            <button class="tooltip-trigger" data-tooltip="The smallest improvement that won't get you laughed out of the standup. Choose relative (%) for percentage improvements or absolute for exact differences." aria-label="Help">ℹ️</button>
+          </label>
           <div class="radio-group">
             <label class="radio-label">
               <input type="radio" name="mdeType" value="relative" checked>
               <span class="radio-custom"></span>
-              Relative (%)
+              Relative (%) - "10% better than before"
             </label>
             <label class="radio-label">
               <input type="radio" name="mdeType" value="absolute">
               <span class="radio-custom"></span>
-              Absolute Value
+              Absolute - "2 percentage points higher"
             </label>
           </div>
         </div>
@@ -125,15 +129,15 @@
         <!-- MDE Values -->
         <div class="form-group" id="relativeMdeGroup">
           <label for="relativeMde" class="form-label">
-            Relative MDE (%) <span class="required">*</span>
-            <span class="tooltip" title="Percentage increase you want to detect (e.g., 10 for 10% lift)">ℹ️</span>
+            Your Improvement Target (%) <span class="required">*</span>
+            <button class="tooltip-trigger" data-tooltip="How much better do you need this to be? Be realistic - 50% improvements are rarer than unicorns. Start with 5-20% for most tests." aria-label="Help">ℹ️</button>
           </label>
           <input 
             type="number" 
             id="relativeMde" 
             name="relativeMde" 
             class="form-input" 
-            placeholder="e.g. 10 for 10% improvement"
+            placeholder="e.g., 10 (that's a 10% improvement - totally doable!)"
             step="0.1"
             min="0.1"
           />
@@ -141,15 +145,15 @@
 
         <div class="form-group hidden" id="absoluteMdeGroup">
           <label for="absoluteMde" class="form-label">
-            Absolute MDE <span class="required">*</span>
-            <span class="tooltip" title="Absolute difference you want to detect (e.g., 0.01 for 1 percentage point)">ℹ️</span>
+            Absolute Improvement Target <span class="required">*</span>
+            <button class="tooltip-trigger" data-tooltip="The raw difference you want to detect. E.g., 0.01 means going from 5% to 6% conversion (1 percentage point). Small numbers, big impact!" aria-label="Help">ℹ️</button>
           </label>
           <input 
             type="number" 
             id="absoluteMde" 
             name="absoluteMde" 
             class="form-input" 
-            placeholder="e.g. 0.01 for 1 percentage point"
+            placeholder="e.g., 0.01 (1 percentage point - every bit counts!)"
             step="0.001"
             min="0.001"
           />
@@ -158,15 +162,15 @@
         <!-- Traffic -->
         <div class="form-group">
           <label for="dailyUsers" class="form-label">
-            Estimated Daily Users <span class="required">*</span>
-            <span class="tooltip" title="Number of users who will see the experiment daily">ℹ️</span>
+            Daily Traffic 🚀 <span class="required">*</span>
+            <button class="tooltip-trigger" data-tooltip="How many brave souls will see your experiment each day? Be realistic about your actual traffic, not your dreams." aria-label="Help">ℹ️</button>
           </label>
           <input 
             type="number" 
             id="dailyUsers" 
             name="dailyUsers" 
             class="form-input" 
-            placeholder="e.g. 1000 users per day"
+            placeholder="e.g., 1000 (living the dream!) or 50 (we all start somewhere)"
             min="1"
             required
           />
@@ -251,13 +255,14 @@
           
           <div class="form-group">
             <label for="analyzeHypothesis" class="form-label">
-              Original Hypothesis <span class="required">*</span>
+              What You Tested 🔬 <span class="required">*</span>
+              <button class="tooltip-trigger" data-tooltip="Remind us what you were trying to prove. Future you will appreciate the context!" aria-label="Help">ℹ️</button>
             </label>
             <textarea 
               id="analyzeHypothesis" 
               name="analyzeHypothesis" 
               class="form-textarea" 
-              placeholder="The hypothesis you tested"
+              placeholder="e.g., Red CTA button will outperform blue by 8% (the eternal color debate settles here)"
               rows="2"
               required
             ></textarea>
@@ -265,28 +270,29 @@
 
           <div class="form-group">
             <label for="primaryMetric" class="form-label">
-              Primary Metric Name <span class="required">*</span>
+              Primary Metric 📊 <span class="required">*</span>
+              <button class="tooltip-trigger" data-tooltip="The main thing you measured. Keep it simple - one metric to rule them all." aria-label="Help">ℹ️</button>
             </label>
             <input 
               type="text" 
               id="primaryMetric" 
               name="primaryMetric" 
               class="form-input" 
-              placeholder="e.g., Conversion Rate"
+              placeholder="e.g., Conversion Rate (the one that matters most)"
               required
             />
           </div>
 
           <div class="form-group">
             <label for="pmNotes" class="form-label">
-              PM Notes (Optional)
-              <span class="tooltip" title="Any context or observations about the experiment">ℹ️</span>
+              PM Notes 📝 (Optional but Helpful)
+              <button class="tooltip-trigger" data-tooltip="Share what you observed! Did mobile behave differently? Any weird days? Your insights make the AI analysis way better." aria-label="Help">ℹ️</button>
             </label>
             <textarea 
               id="pmNotes" 
               name="pmNotes" 
               class="form-textarea" 
-              placeholder="Any additional context, observations, or concerns about the experiment"
+              placeholder="e.g., 'Mobile users seemed confused by the new flow' or 'Traffic spike on day 3 due to newsletter'"
               rows="2"
             ></textarea>
           </div>
@@ -305,7 +311,10 @@
               </div>
               <div class="variant-fields">
                 <div class="form-group">
-                  <label class="form-label">Variant Name</label>
+                  <label class="form-label">
+                    Variant Name 🏷️
+                    <button class="tooltip-trigger" data-tooltip="Give it a name you'll remember. 'Control' works, but 'Old Blue Button' is more fun!" aria-label="Help">ℹ️</button>
+                  </label>
                   <input 
                     type="text" 
                     name="variant_0_name" 
@@ -315,23 +324,29 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Users <span class="required">*</span></label>
+                  <label class="form-label">
+                    Users 👥 <span class="required">*</span>
+                    <button class="tooltip-trigger" data-tooltip="How many people saw this version? Be precise - every user counts in the stats game." aria-label="Help">ℹ️</button>
+                  </label>
                   <input 
                     type="number" 
                     name="variant_0_users" 
                     class="form-input" 
-                    placeholder="e.g. 1000"
+                    placeholder="e.g., 1000 (the brave test subjects)"
                     min="1"
                     required
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Conversions <span class="required">*</span></label>
+                  <label class="form-label">
+                    Conversions ✅ <span class="required">*</span>
+                    <button class="tooltip-trigger" data-tooltip="How many actually did the thing you wanted? The moment of truth!" aria-label="Help">ℹ️</button>
+                  </label>
                   <input 
                     type="number" 
                     name="variant_0_conversions" 
                     class="form-input" 
-                    placeholder="e.g. 50"
+                    placeholder="e.g., 50 (the champions!)"
                     min="0"
                     required
                   />
@@ -347,7 +362,10 @@
               </div>
               <div class="variant-fields">
                 <div class="form-group">
-                  <label class="form-label">Variant Name</label>
+                  <label class="form-label">
+                    Variant Name 🏷️
+                    <button class="tooltip-trigger" data-tooltip="Your experimental variant - the star of the show! What makes this different?" aria-label="Help">ℹ️</button>
+                  </label>
                   <input 
                     type="text" 
                     name="variant_1_name" 
@@ -357,23 +375,29 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Users <span class="required">*</span></label>
+                  <label class="form-label">
+                    Users 👥 <span class="required">*</span>
+                    <button class="tooltip-trigger" data-tooltip="How many brave souls tried your new version? Keep it balanced with control for best results." aria-label="Help">ℹ️</button>
+                  </label>
                   <input 
                     type="number" 
                     name="variant_1_users" 
                     class="form-input" 
-                    placeholder="e.g. 1000"
+                    placeholder="e.g., 1000 (equally brave as control!)"
                     min="1"
                     required
                   />
                 </div>
                 <div class="form-group">
-                  <label class="form-label">Conversions <span class="required">*</span></label>
+                  <label class="form-label">
+                    Conversions ✅ <span class="required">*</span>
+                    <button class="tooltip-trigger" data-tooltip="The moment of truth - how many converted with your brilliant new version?" aria-label="Help">ℹ️</button>
+                  </label>
                   <input 
                     type="number" 
                     name="variant_1_conversions" 
                     class="form-input" 
-                    placeholder="e.g. 65"
+                    placeholder="e.g., 65 (hopefully more than control!)"
                     min="0"
                     required
                   />
@@ -402,7 +426,7 @@
             <span class="btn-spinner hidden"></span>
           </button>
           <div class="form-note" style="margin-top: 8px; font-size: 12px; color: #6b7280; text-align: center;">
-            ⏳ Analysis may take 30-90 seconds due to AI processing
+            ⏳ AI analysis takes 30-90 seconds (perfect time for a coffee refill while we crunch your numbers!)
           </div>
         </div>
       </form>

@@ -5,7 +5,8 @@ import {
   saveConfiguration, 
   showMessage, 
   clearMessages,
-  validateURL
+  validateURL,
+  initializeTooltips
 } from '../shared/utils.js';
 import { DEFAULT_CONFIG, ENVIRONMENT_PRESETS, STATISTICAL_DEFAULTS } from '../shared/constants.js';
 
@@ -26,6 +27,9 @@ class OptionsManager {
     
     // Initialize UI
     this.initializeUI();
+    
+    // Initialize enhanced tooltips
+    initializeTooltips();
   }
 
   async loadConfiguration() {
