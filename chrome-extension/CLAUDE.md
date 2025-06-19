@@ -2,13 +2,29 @@
 
 This file provides comprehensive guidance for developing, maintaining, and extending the PM Tools Chrome Extension.
 
-## 🚀 Current Status (Updated: June 18, 2025)
+## 🚀 Current Status (Updated: June 19, 2025)
 
-### ✅ **Recently Fixed Issues**
-- **API Timeout Fix**: Increased timeout to 90 seconds for AI-powered analysis endpoints
-- **Tab Click Areas**: Fixed tabs only clickable at bottom - entire surface now works
-- **Basic Markdown Rendering**: Headers (`### Title`) now render as proper `<h3>` elements
-- **User Experience**: Added progress messages for AI processing, better error handling
+### ✅ **Recently Completed Major Updates**
+
+#### **🎯 Hidden Results UX Fix (June 19, 2025)**
+- **Auto-scroll to Results**: Results now automatically scroll into view after API responses
+- **Enhanced User Messaging**: Clear guidance where results will appear ("Results will appear below when ready!")
+- **Visual Results Entrance**: Subtle animation with blue border highlight draws attention to new content
+- **Navigation Aids**: Added scroll-to-top buttons (🔝) in results sections for easy form access
+- **Accessibility**: Full support for reduced-motion preferences
+
+#### **⚙️ Settings Simplification (June 19, 2025)**
+- **Removed Technical Configuration**: Eliminated API hostname, timeout, retry settings from UI
+- **Environment Auto-Detection**: Automatic detection of local/staging/production environments
+- **User Preferences Focus**: Settings now only show workflow preferences (statistical defaults, theme, UX options)
+- **Zero Configuration Setup**: Works out-of-the-box with no technical setup required
+- **Seamless Migration**: Automatic migration from old config to new preference structure
+
+#### **💬 PM-Friendly Help Texts & Clickable Tooltips (June 18, 2025)**
+- **Enhanced Help Content**: PM-friendly language with humor throughout the extension
+- **Clickable Tooltip System**: Advanced TooltipManager with smart positioning and mobile optimization
+- **Accessibility Features**: Full ARIA support and keyboard navigation for tooltips
+- **Professional Copy**: Realistic scenarios and helpful guidance for Product Managers
 
 ### ⚠️ **Known Issues**
 - **Follow-up Questions Markdown**: AI-generated questions still display as run-on text instead of formatted list items
@@ -19,8 +35,8 @@ This file provides comprehensive guidance for developing, maintaining, and exten
 ### 🎯 **Next Development Priorities**
 1. Fix follow-up questions markdown rendering with proper debugging
 2. Test with various AI response formats
-3. Enhance error handling for edge cases
-4. Add more comprehensive markdown support if needed
+3. Add theme switching functionality (light/dark mode implementation)
+4. Enhance mobile responsiveness for smaller screens
 
 ## 🏗️ Extension Architecture
 
@@ -62,10 +78,10 @@ chrome-extension/
 - **API Status**: Real-time connection indicator
 
 #### 3. Options Page (options/)
-- **Configuration Interface**: API settings and preferences
-- **Environment Presets**: Quick setup for dev/staging/prod
-- **Connection Testing**: Verify API accessibility
-- **User Preferences**: Theme, defaults, and UX settings
+- **User Preferences Interface**: Workflow preferences and statistical defaults (simplified from technical config)
+- **Environment Status Display**: Shows auto-detected environment and API connection status
+- **Statistical Defaults**: Power, significance, MDE type, variants configuration
+- **User Experience Settings**: Theme, auto-save, tooltips, export format preferences
 
 #### 4. Background Service Worker
 - **API Communication**: Centralized request handling
@@ -90,7 +106,7 @@ export const CONSTANTS = { /* ... */ };
 
 ### API Client Architecture
 ```javascript
-// Singleton pattern with configuration
+// Singleton pattern with environment auto-detection
 export function getAPIClient() {
   if (!apiClientInstance) {
     apiClientInstance = new APIClient();
@@ -98,9 +114,9 @@ export function getAPIClient() {
   return apiClientInstance;
 }
 
-// Configuration updates
-client.updateConfig(newConfig);
-await client.loadConfig(); // From Chrome storage
+// Environment-based configuration (NEW - June 2025)
+const envConfig = getCurrentEnvironment();
+// No user configuration needed - automatic detection!
 ```
 
 ### Chrome Storage Pattern
@@ -247,12 +263,15 @@ btnSpinner.classList.remove('hidden');
 
 #### 1. Manual Testing Checklist
 - [ ] Extension loads without errors
-- [ ] API configuration works with different hostnames
+- [ ] Environment auto-detection works correctly
+- [ ] Auto-scroll to results functions properly
+- [ ] Clickable tooltips work with keyboard navigation
 - [ ] Form validation catches all error cases
-- [ ] Results display correctly formatted
+- [ ] Results display correctly formatted with animations
 - [ ] Export functionality works (JSON/CSV)
 - [ ] Error states display helpful messages
 - [ ] Responsive design works at different sizes
+- [ ] Settings migration from old config works seamlessly
 
 #### 2. API Integration Testing
 ```javascript
@@ -394,80 +413,121 @@ try {
 }
 ```
 
-## 🛠️ Configuration Management
+## 🛠️ Configuration Management (Updated June 2025)
 
-### Environment Configuration
+### Environment Auto-Detection
 ```javascript
-// Environment presets for easy switching
-const ENVIRONMENT_PRESETS = {
+// NEW: Automatic environment detection
+const detectEnvironment = () => {
+  // Smart detection based on browser context
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getManifest) {
+    const manifest = chrome.runtime.getManifest();
+    if (manifest.version_name && manifest.version_name.includes('dev')) {
+      return 'local';
+    }
+  }
+  
+  // Check for localhost or common dev patterns
+  if (typeof location !== 'undefined') {
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      return 'local';
+    }
+    if (location.hostname.includes('staging') || location.hostname.includes('dev')) {
+      return 'staging';
+    }
+  }
+  
+  return 'local'; // Default for development
+};
+
+// Environment-specific configuration (not user-configurable)
+export const ENVIRONMENT_CONFIG = {
   local: {
     name: 'Local Development',
-    hostname: 'http://localhost:8000'
+    apiHostname: 'http://localhost:8000'
   },
   staging: {
     name: 'Staging',
-    hostname: 'https://staging-api.company.com'
+    apiHostname: 'https://staging-api.company.com'
   },
   production: {
-    name: 'Production', 
-    hostname: 'https://api.company.com'
+    name: 'Production',
+    apiHostname: 'https://api.company.com'
   }
 };
 ```
 
-### Timeout Configuration (Updated June 2025)
+### Technical Configuration (Hardcoded)
 ```javascript
-// Default timeout settings in shared/constants.js
-export const DEFAULT_CONFIG = {
-  apiHostname: 'http://localhost:8000',
-  timeout: 45000, // Increased from 30s to 45s
+// Technical settings - optimized defaults, not user-configurable
+export const TECHNICAL_CONFIG = {
+  timeout: 45000,
   retryAttempts: 3,
-  retryDelay: 1000
+  retryDelay: 1000,
+  maxRetryDelay: 5000
 };
 
-// Endpoint-specific timeouts for AI processing
+// Endpoint-specific timeouts (optimized)
 export const ENDPOINT_TIMEOUTS = {
   '/health': 10000,           // 10 seconds for health checks
   '/validate/setup': 30000,   // 30 seconds for validation
   '/analyze/results': 90000,  // 90 seconds for AI-powered analysis
   '/llm/status': 15000        // 15 seconds for LLM status
 };
-
-// Usage in api-client.js
-const endpointTimeout = ENDPOINT_TIMEOUTS[endpoint] || this.timeout;
 ```
 
-### Storage Schema
+### User Preferences Storage (NEW)
 ```javascript
-// Chrome storage structure
+// Simplified user preferences structure
 {
-  pmtools_config: {
-    apiHostname: "string",
-    timeout: number,
-    retryAttempts: number,
-    retryDelay: number,
+  pmtools_user_preferences: {
     statisticalDefaults: {
       statistical_power: number,
       significance_level: number,
       variants: number,
       mde_type: "relative" | "absolute"
     },
-    theme: "light" | "dark" | "auto",
-    autoSave: boolean,
-    clearOnSuccess: boolean,
-    showTooltips: boolean,
-    exportFormat: "json" | "csv"
+    userExperience: {
+      theme: "light" | "dark" | "auto",
+      autoSave: boolean,
+      clearOnSuccess: boolean,
+      showTooltips: boolean,
+      exportFormat: "json" | "csv"
+    }
   },
   pmtools_form_data_validate: {
-    // Auto-saved form data
+    // Auto-saved form data (unchanged)
     timestamp: number,
     // ... form fields
   },
   pmtools_form_data_analyze: {
-    // Auto-saved form data
+    // Auto-saved form data (unchanged)
     timestamp: number,
     // ... form fields
   }
+}
+```
+
+### Migration Support
+```javascript
+// Automatic migration from old config to new preferences
+async function migrateFromOldConfig() {
+  const oldConfig = await getStorageData(STORAGE_KEYS.config);
+  if (!oldConfig) return null;
+  
+  const newPreferences = {
+    statisticalDefaults: oldConfig.statisticalDefaults || STATISTICAL_DEFAULTS,
+    userExperience: {
+      theme: oldConfig.theme || 'light',
+      autoSave: oldConfig.autoSave !== false,
+      clearOnSuccess: oldConfig.clearOnSuccess || false,
+      showTooltips: oldConfig.showTooltips !== false,
+      exportFormat: oldConfig.exportFormat || 'json'
+    }
+  };
+  
+  await saveUserPreferences(newPreferences);
+  return newPreferences;
 }
 ```
 
@@ -619,16 +679,30 @@ console.log('Memory usage:', window.performance.memory);
    new_field: data.newField
    ```
 
-### Adding New Settings
-1. **Add to constants.js** default values
+### Adding New User Preferences (Updated June 2025)
+1. **Add to constants.js** default values in `DEFAULT_USER_PREFERENCES`:
+   ```javascript
+   export const DEFAULT_USER_PREFERENCES = {
+     statisticalDefaults: { /* ... */ },
+     userExperience: {
+       // ... existing preferences
+       newPreference: defaultValue
+     }
+   };
+   ```
+
 2. **Add HTML form** in options.html
-3. **Add storage handling** in options.js:
+3. **Add preference handling** in options.js:
    ```javascript
    // In collectFormData()
-   newSetting: document.getElementById('newSetting').value,
+   userExperience: {
+     // ... existing preferences
+     newPreference: document.getElementById('newPreference').value
+   }
    
    // In populateForm()
-   document.getElementById('newSetting').value = config.newSetting;
+   const ux = this.currentPreferences.userExperience;
+   document.getElementById('newPreference').value = ux.newPreference;
    ```
 
 ## 🔒 Security Considerations
@@ -701,19 +775,46 @@ validateForm(data) { /* ... */ }
 ```
 
 ### User Experience
-- Always show loading states for async operations
-- Provide clear error messages with actionable advice
-- Save user work automatically
+- Always show loading states for async operations with progress indicators
+- Auto-scroll to results after API responses to prevent "hidden results" confusion
+- Provide clear error messages with actionable advice and PM-friendly language
+- Use clickable tooltips with smart positioning instead of hover-only tooltips
+- Save user work automatically with debounced form auto-save
 - Minimize clicks needed for common operations
-- Test with real user workflows
+- Add visual entrance animations to draw attention to new content
+- Test with real user workflows and PM scenarios
 
 ### Maintenance
-- Keep dependencies minimal
-- Use native Chrome APIs when possible
-- Document all configuration options
-- Maintain consistent code patterns
-- Regular testing with different API versions
+- Keep dependencies minimal and use native Chrome APIs when possible
+- Environment detection handles configuration automatically (no manual setup needed)
+- Document user preferences but avoid exposing technical configuration options
+- Maintain consistent code patterns and PM-friendly messaging throughout
+- Regular testing with different API versions and environment configurations
+- Ensure smooth migration paths for settings structure changes
 
 ---
 
-This documentation serves as the comprehensive guide for understanding, developing, and maintaining the PM Tools Chrome Extension. Follow these patterns and guidelines to ensure consistent, maintainable, and user-friendly code.
+## 📋 Summary of Major Architecture Changes (June 2025)
+
+### 🎯 **UX-First Design Philosophy**
+PM Tools has evolved from a technical developer tool to a **professional PM product**:
+
+- **Zero Configuration Setup**: Works immediately without technical setup
+- **User Experience Focus**: Every interaction designed for Product Manager workflows  
+- **Professional Polish**: Auto-scroll, animations, smart tooltips, PM-friendly copy
+- **Accessibility First**: Full keyboard navigation, reduced-motion support, ARIA compliance
+
+### 🏗️ **Technical Architecture Improvements**
+- **Environment Auto-Detection**: Smart detection eliminates manual API configuration
+- **Simplified Settings**: User preferences only (statistical defaults + UX options)
+- **Advanced Tooltip System**: Clickable, mobile-optimized, accessible tooltip management
+- **Seamless Migration**: Automatic upgrade from old config to new preference structure
+- **Enhanced Error Handling**: PM-friendly error messages with actionable guidance
+
+### 🎨 **Modern UX Patterns**
+- **Results Auto-Scroll**: Eliminates "hidden results" confusion
+- **Visual Feedback**: Subtle animations and entrance effects
+- **Smart Navigation**: Scroll-to-top buttons and logical information hierarchy
+- **Progress Communication**: Clear messaging about what's happening and where results will appear
+
+This documentation serves as the comprehensive guide for understanding, developing, and maintaining the PM Tools Chrome Extension. The architecture now reflects a **consumer-grade product experience** while maintaining the technical robustness needed for statistical analysis.
