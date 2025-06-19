@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - Standalone Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        <div class="logo">
+          <span class="logo-icon">🚀</span>
+          <span class="logo-text">PM Tools - Standalone Edition</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" id="resetBtn">Reset to Defaults</button>
+          <button class="btn btn-primary" id="saveBtn">
+            <span class="btn-text">Save Settings</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages" id="messages"></div>
+
+    <!-- Main Content -->
+    <div class="content">
+      
+      <!-- API Keys Configuration Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>🔑 Bring Your Own Keys (BYOK)</h2>
+          <p>Configure your AI provider API keys for intelligent analysis (your keys, your control, your privacy!)</p>
+        </div>
+        
+        <div class="section-content">
+          <div class="byok-intro">
+            <div class="byok-info">
+              <h4>✨ Why BYOK?</h4>
+              <ul>
+                <li>🔒 <strong>Privacy:</strong> Your data never leaves your browser</li>
+                <li>💰 <strong>Cost Control:</strong> You control your AI spending</li>
+                <li>🎯 <strong>Direct Access:</strong> No middleman, no limits</li>
+                <li>⚡ <strong>Fast:</strong> Direct API calls for better performance</li>
+              </ul>
+            </div>
+          </div>
+
+          <form class="form" id="apiKeysForm">
+            
+            <!-- Google Gemini Configuration -->
+            <div class="form-group api-key-group">
+              <div class="api-provider-header">
+                <div class="provider-info">
+                  <h4>🤖 Google Gemini</h4>
+                  <span class="provider-badge recommended">Recommended - Lower Cost</span>
+                </div>
+                <div class="provider-actions">
+                  <a href="https://aistudio.google.com/" target="_blank" class="btn btn-link btn-small">Get API Key</a>
+                  <button type="button" class="btn btn-outline btn-small" id="testGeminiBtn">Test Connection</button>
+                </div>
+              </div>
+              
+              <label for="googleApiKey" class="form-label">
+                Google API Key
+                <button class="tooltip-trigger" data-tooltip="Get free credits at Google AI Studio. Keep this secret - treat it like a password!" aria-label="Help">ℹ️</button>
+              </label>
+              <div class="api-key-input-group">
+                <input type="password" id="googleApiKey" name="googleApiKey" class="form-input api-key-input" placeholder="Enter your Google API key...">
+                <button type="button" class="btn btn-icon" id="toggleGoogleKey" aria-label="Toggle visibility">👁️</button>
+              </div>
+              <div class="api-key-status" id="geminiStatus">
+                <span class="status-indicator"></span>
+                <span class="status-text">Not configured</span>
+              </div>
+            </div>
+
+            <!-- Anthropic Claude Configuration -->
+            <div class="form-group api-key-group">
+              <div class="api-provider-header">
+                <div class="provider-info">
+                  <h4>🧠 Anthropic Claude</h4>
+                  <span class="provider-badge premium">Premium - Higher Quality</span>
+                </div>
+                <div class="provider-actions">
+                  <a href="https://console.anthropic.com/" target="_blank" class="btn btn-link btn-small">Get API Key</a>
+                  <button type="button" class="btn btn-outline btn-small" id="testClaudeBtn">Test Connection</button>
+                </div>
+              </div>
+              
+              <label for="anthropicApiKey" class="form-label">
+                Anthropic API Key
+                <button class="tooltip-trigger" data-tooltip="Sign up at Anthropic Console. More expensive but often higher quality analysis" aria-label="Help">ℹ️</button>
+              </label>
+              <div class="api-key-input-group">
+                <input type="password" id="anthropicApiKey" name="anthropicApiKey" class="form-input api-key-input" placeholder="Enter your Anthropic API key...">
+                <button type="button" class="btn btn-icon" id="toggleAnthropicKey" aria-label="Toggle visibility">👁️</button>
+              </div>
+              <div class="api-key-status" id="claudeStatus">
+                <span class="status-indicator"></span>
+                <span class="status-text">Not configured</span>
+              </div>
+            </div>
+
+            <!-- LLM Provider Settings -->
+            <div class="form-group">
+              <label for="defaultProvider" class="form-label">
+                Default AI Provider
+                <button class="tooltip-trigger" data-tooltip="Which AI you prefer. Gemini is usually cheaper, Claude often more detailed" aria-label="Help">ℹ️</button>
+              </label>
+              <select id="defaultProvider" name="defaultProvider" class="form-select">
+                <option value="gemini" selected>Google Gemini (Cost-Effective)</option>
+                <option value="claude">Anthropic Claude (Premium Quality)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="fallbackEnabled" name="fallbackEnabled" checked>
+                <span class="checkbox-custom"></span>
+                Enable AI Fallback 🛡️
+                <button class="tooltip-trigger" data-tooltip="If your primary AI fails, automatically try the backup. Recommended!" aria-label="Help">ℹ️</button>
+              </label>
+              <p class="form-help">If your primary AI provider fails, automatically try the other one. Highly recommended for reliability!</p>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Statistical Defaults Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>📊 Statistical Defaults</h2>
+          <p>Set your preferred statistical parameters (the numbers that make experiments work!)</p>
+        </div>
+        
+        <div class="section-content">
+          <form class="form" id="statisticalForm">
+            
+            <div class="form-group">
+              <label for="defaultPower" class="form-label">
+                Default Statistical Power 💪
+                <button class="tooltip-trigger" data-tooltip="How likely you are to catch a real difference if it exists. 80% is the gold standard - like having good vision for spotting real changes!" aria-label="Help">ℹ️</button>
+              </label>
+              <select id="defaultPower" name="defaultPower" class="form-select">
+                <option value="0.70">70%</option>
+                <option value="0.80" selected>80% (Standard)</option>
+                <option value="0.85">85%</option>
+                <option value="0.90">90%</option>
+                <option value="0.95">95%</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="defaultSignificance" class="form-label">
+                Default Significance Level 🎯
+                <button class="tooltip-trigger" data-tooltip="How strict you want to be about calling something 'significant'. 5% means you're okay with a 1-in-20 chance of being wrong. Lower = more strict!" aria-label="Help">ℹ️</button>
+              </label>
+              <select id="defaultSignificance" name="defaultSignificance" class="form-select">
+                <option value="0.01">1%</option>
+                <option value="0.05" selected>5% (Standard)</option>
+                <option value="0.10">10%</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="defaultVariants" class="form-label">
+                Default Number of Variants
+              </label>
+              <select id="defaultVariants" name="defaultVariants" class="form-select">
+                <option value="2" selected>2 (A/B Test)</option>
+                <option value="3">3 (A/B/C Test)</option>
+                <option value="4">4 Variants</option>
+                <option value="5">5 Variants</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="defaultMdeType" class="form-label">
+                Default MDE Type 🎯
+                <button class="tooltip-trigger" data-tooltip="How you prefer to think about improvements. Relative is like 'X% better' while absolute is 'X points higher'. Most PMs think in percentages!" aria-label="Help">ℹ️</button>
+              </label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="defaultMdeType" value="relative" checked>
+                  <span class="radio-custom"></span>
+                  Relative (%) - "10% better than before"
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="defaultMdeType" value="absolute">
+                  <span class="radio-custom"></span>
+                  Absolute - "2 percentage points higher"
+                </label>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- User Experience Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>⚙️ User Experience</h2>
+          <p>Make PM Tools work the way you do (because every PM has their preferences!)</p>
+        </div>
+        
+        <div class="section-content">
+          <form class="form" id="experienceForm">
+            
+            <div class="form-group">
+              <label for="theme" class="form-label">Theme</label>
+              <select id="theme" name="theme" class="form-select">
+                <option value="light" selected>Light</option>
+                <option value="dark">Dark (Coming Soon)</option>
+                <option value="auto">Auto (Coming Soon)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Form Behavior</label>
+              <div class="checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="autoSave" name="autoSave" checked>
+                  <span class="checkbox-custom"></span>
+                  Auto-save form data (because losing work is worse than losing users 💾)
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="clearOnSuccess" name="clearOnSuccess">
+                  <span class="checkbox-custom"></span>
+                  Clear forms after successful submission (fresh start for new experiments 🧹)
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="showTooltips" name="showTooltips" checked>
+                  <span class="checkbox-custom"></span>
+                  Show helpful tooltips (we recommend keeping these - they're actually useful! 💡)
+                </label>
+                <label class="checkbox-label">
+                  <input type="checkbox" id="animationEnabled" name="animationEnabled" checked>
+                  <span class="checkbox-custom"></span>
+                  Enable smooth animations (makes results appear with style ✨)
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="exportFormat" class="form-label">
+                Default Export Format
+                <button class="tooltip-trigger" data-tooltip="JSON keeps all data, CSV is spreadsheet-friendly" aria-label="Help">ℹ️</button>
+              </label>
+              <select id="exportFormat" name="exportFormat" class="form-select">
+                <option value="json" selected>JSON (Complete Data)</option>
+                <option value="csv">CSV (Spreadsheet-Ready)</option>
+              </select>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- About Section -->
+      <div class="section">
+        <div class="section-header">
+          <h2>ℹ️ About PM Tools - Standalone Edition</h2>
+          <p>Self-sufficient A/B testing tool with bring-your-own-key AI integration</p>
+        </div>
+        
+        <div class="section-content">
+          <div class="about-content">
+            
+            <div class="about-item">
+              <h4>🚀 What Makes This Special</h4>
+              <ul>
+                <li>🔑 <strong>Bring Your Own Keys:</strong> Use your own AI API keys for complete control</li>
+                <li>🏠 <strong>No Backend Required:</strong> All calculations run locally in your browser</li>
+                <li>🔒 <strong>Privacy First:</strong> Your data never leaves your browser</li>
+                <li>💰 <strong>Cost Control:</strong> You manage your own AI usage and costs</li>
+                <li>⚡ <strong>Fast:</strong> No network round-trips for statistical calculations</li>
+              </ul>
+            </div>
+
+            <div class="about-item">
+              <h4>🎯 Core Features</h4>
+              <ul>
+                <li>Local statistical calculations (sample size, power analysis, significance testing)</li>
+                <li>AI-powered hypothesis assessment and results interpretation</li>
+                <li>Direct integration with Google Gemini and Anthropic Claude</li>
+                <li>Trade-off analysis and experiment planning tools</li>
+                <li>Export capabilities and auto-save functionality</li>
+              </ul>
+            </div>
+
+            <div class="about-item">
+              <h4>🤖 AI Integration</h4>
+              <p>This standalone edition connects directly to Google Gemini and Anthropic Claude APIs using your own API keys. All AI processing happens through your personal accounts - no middleman, no data sharing, complete privacy.</p>
+            </div>
+
+            <div class="about-item">
+              <h4>🔒 Privacy & Security</h4>
+              <ul>
+                <li>API keys stored securely in Chrome's encrypted storage</li>
+                <li>All statistical calculations run locally (no external calls)</li>
+                <li>AI analysis sent directly to your chosen provider</li>
+                <li>No data collection, logging, or third-party sharing</li>
+              </ul>
+            </div>
+
+            <div class="version-info">
+              <strong>Version:</strong> 1.0.0 - Standalone Edition<br>
+              <strong>Statistical Engine:</strong> Local JavaScript implementation<br>
+              <strong>AI Providers:</strong> Google Gemini, Anthropic Claude<br>
+              <strong>Dependencies:</strong> None (completely self-sufficient)
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 PM Tools - Standalone Edition. Built for Product Managers who value data-driven decisions and privacy.</p>
+        <div class="footer-links">
+          <a href="https://github.com/prateekjain24/pmtools" target="_blank" class="footer-link">GitHub</a>
+          <a href="https://github.com/prateekjain24/pmtools/tree/main/chrome-extension-standalone" target="_blank" class="footer-link">Documentation</a>
+          <a href="https://github.com/prateekjain24/pmtools/issues" target="_blank" class="footer-link">Support</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
