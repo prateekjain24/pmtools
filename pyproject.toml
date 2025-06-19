@@ -5,7 +5,7 @@ description = "A/B Testing Validation & Analysis API for Product Managers"
 authors = [
     {name = "Prateek", email = "api@prateek.mozmail.com"}
 ]
-readme = "README.md"
+# readme = "README.md"  # Not needed for container build
 requires-python = ">=3.9"
 dependencies = [
     "fastapi>=0.104.0",

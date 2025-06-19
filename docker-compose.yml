@@ -1,0 +1,68 @@
+# PM Tools API - Docker Compose for Coolify Production Deployment
+version: '3.8'
+
+services:
+  pmtools-api:
+    build: .
+    container_name: pmtools-api
+    restart: unless-stopped
+    
+    # Port mapping
+    ports:
+      - "8000:8000"
+    
+    # Environment variables (override with Coolify secrets)
+    environment:
+      # API Configuration
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_DEBUG=false
+      - LOG_LEVEL=info
+      - WORKERS=4
+      
+      # LLM Provider Configuration
+      - DEFAULT_LLM_PROVIDER=gemini
+      - LLM_FALLBACK_ENABLED=true
+      - GEMINI_MODEL=gemini-2.5-flash
+      - ANTHROPIC_MODEL=claude-3-5-sonnet-20241022
+      
+      # API Keys (Set these as secrets in Coolify)
+      # - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      # - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits (adjust based on your VPS specs)
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    
+    # Use non-root user
+    user: pmtools
+    
+    # Labels for Coolify
+    labels:
+      - "coolify.managed=true"
+      - "coolify.version=v1"
+      - "coolify.type=application"
+      - "coolify.name=pmtools-api"
+
+# Networks (optional - Coolify will manage)
+networks:
+  default:
+    name: pmtools-network

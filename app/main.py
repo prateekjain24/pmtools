@@ -2,13 +2,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.validate import router as validate_router
 from app.api.analyze import router as analyze_router
+from app.core.config import settings
+import logging
+
+# Configure logging for production
+logging.basicConfig(
+    level=getattr(logging, settings.log_level.upper()),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="PM Tools - A/B Testing API",
     description="A/B Testing Validation & Analysis API for Product Managers",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if settings.api_debug else None,  # Disable docs in production
+    redoc_url="/redoc" if settings.api_debug else None,  # Disable redoc in production
 )
 
 app.add_middleware(
@@ -29,13 +39,19 @@ async def root():
     return {
         "message": "PM Tools - A/B Testing API",
         "version": "1.0.0",
-        "docs": "/docs"
+        "status": "running",
+        "docs": "/docs" if settings.api_debug else "disabled"
     }
 
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    """Health check endpoint for container orchestration and monitoring."""
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "environment": "production" if not settings.api_debug else "development"
+    }
 
 
 @app.get("/llm/status")

@@ -4,7 +4,11 @@
       "Bash(mkdir:*)",
       "Bash(pip install:*)",
       "Bash(uv pip install:*)",
-      "Bash(uv run streamlit:*)"
+      "Bash(uv run streamlit:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

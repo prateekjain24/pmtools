@@ -165,7 +165,125 @@ The API uses a fallback system between Google Gemini and Anthropic Claude:
 - **Context-aware**: Combines quantitative analysis with qualitative PM insights using LLM
 - **Resilient**: LLM fallback ensures API remains functional even if AI services are unavailable
 
+## Docker Deployment
+
+The PM Tools API is containerized for production deployment. Docker provides consistent deployment across environments.
+
+### Docker Build and Run
+
+```bash
+# Build the Docker image
+docker build -t pmtools-api:latest .
+
+# Run container locally for testing
+docker run -d \
+  --name pmtools-api \
+  -p 8000:8000 \
+  -e API_DEBUG=false \
+  -e LOG_LEVEL=info \
+  -e GOOGLE_API_KEY=your_google_api_key \
+  -e ANTHROPIC_API_KEY=your_anthropic_api_key \
+  pmtools-api:latest
+
+# Check container health
+curl http://localhost:8000/health
+```
+
+### Production Deployment with Docker Compose
+
+```bash
+# Deploy using docker-compose (recommended for production)
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f pmtools-api
+
+# Stop deployment
+docker-compose down
+```
+
+### Coolify Deployment
+
+This API is optimized for deployment on [Coolify](https://coolify.io/) - a self-hosted alternative to Heroku/Vercel.
+
+**Step 1: Repository Setup**
+- Push your code to a Git repository (GitHub/GitLab)
+- Ensure `Dockerfile` and `docker-compose.yml` are in the root
+
+**Step 2: Coolify Configuration**
+1. Create new application in Coolify
+2. Connect your Git repository 
+3. Set build pack to "Docker Compose"
+4. Configure environment variables as secrets:
+   - `GOOGLE_API_KEY` (required)
+   - `ANTHROPIC_API_KEY` (required)
+   - `API_DEBUG=false`
+   - `LOG_LEVEL=info`
+
+**Step 3: Health Check Setup**
+- Coolify will automatically use the health check defined in docker-compose.yml
+- Health endpoint: `/health`
+- Expected response: `{"status": "healthy"}`
+
+### Docker Environment Variables
+
+All configuration is handled via environment variables:
+
+```bash
+# Core API Settings
+API_HOST=0.0.0.0              # Container host binding
+API_PORT=8000                 # Container port
+API_DEBUG=false               # Disable docs in production
+LOG_LEVEL=info                # Logging level: debug, info, warning, error
+WORKERS=4                     # Uvicorn worker processes
+
+# LLM Configuration
+DEFAULT_LLM_PROVIDER=gemini           # Primary LLM provider
+LLM_FALLBACK_ENABLED=true            # Enable fallback to secondary provider
+GEMINI_MODEL=gemini-2.5-flash        # Google Gemini model
+ANTHROPIC_MODEL=claude-3-5-sonnet-20241022  # Anthropic Claude model
+
+# API Keys (set as secrets in Coolify)
+GOOGLE_API_KEY=your_key_here         # Required for Gemini
+ANTHROPIC_API_KEY=your_key_here      # Required for Claude
+```
+
+### Container Features
+
+**Security**:
+- Non-root user (`pmtools`) for container security
+- Minimal attack surface with slim Python base image
+- No unnecessary packages or tools in production image
+
+**Performance**:
+- UV package manager for fast dependency installation
+- Multi-worker Uvicorn for production workloads
+- Resource limits configurable via docker-compose
+
+**Monitoring**:
+- Built-in health checks for container orchestration
+- Structured logging for production debugging
+- LLM provider status endpoint (`/llm/status`)
+
 ## Troubleshooting
+
+### Docker Issues
+```bash
+# Build image with no cache
+docker build --no-cache -t pmtools-api:latest .
+
+# Check container logs
+docker logs pmtools-api
+
+# Debug container interactively
+docker run -it --entrypoint /bin/bash pmtools-api:latest
+
+# Test container health
+docker exec pmtools-api curl -f http://localhost:8000/health
+
+# Remove all containers and images for clean restart
+docker system prune -a
+```
 
 ### LLM Issues
 ```bash
