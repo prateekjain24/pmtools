@@ -26,6 +26,11 @@ The standalone Chrome extension is now fully implemented with:
 - ✅ Markdown to HTML conversion for LLM responses
 - ✅ Structured JSON output for reliable LLM responses (June 2025)
 
+#### Key Documentation Files
+- `chrome-extension-standalone/README.md` - Technical implementation details
+- `chrome-extension-standalone/IMPLEMENTATION_V2.md` - Standalone version architecture
+- `chrome-extension-standalone/publish.md` - Chrome Web Store publishing guide (June 2025)
+
 ## Memory
 
 ### Temporal Memories
@@ -95,6 +100,37 @@ The standalone Chrome extension is now fully implemented with:
   - Modified HTML files to remove emoji references
   - Maintained all existing functionality and calculations
   - Updated default LLM models to latest versions (Gemini 2.5 Pro, Claude Sonnet 4.0)
+
+### Chrome Web Store Publishing Guide (June 2025)
+- **Documentation Created**: Comprehensive `publish.md` file in `chrome-extension-standalone/`
+- **Publishing Requirements**:
+  - Manifest V3 compliance verified (no remote code execution)
+  - One-time $5 USD developer registration fee
+  - Minimum 1 screenshot required (1280x800 px), up to 5 recommended
+  - Privacy policy required due to data handling permissions
+  - 1-3 day typical review time
+- **Store Listing Content Prepared**:
+  - **Name**: PM Tools - A/B Testing Assistant
+  - **Short Description**: Statistical power calculator & AI insights for A/B tests. Your personal PM consultant for experiment design & results analysis.
+  - **Category**: Productivity
+  - **Detailed Description**: Comprehensive feature list emphasizing local calculations, BYOK model, and privacy-first approach
+- **Permission Justifications Documented**:
+  - **storage**: Save user preferences, API keys (encrypted), and form data locally
+  - **notifications**: Alert users when calculations or AI analysis complete
+  - **alarms**: Periodic cache cleanup and auto-save functionality
+  - **host_permissions**: Optional AI API access (only when user provides keys)
+- **Privacy Policy Template**: Created with Chrome Web Store compliance, emphasizing:
+  - All calculations run locally
+  - No analytics or tracking
+  - API keys only used for direct AI service communication
+  - Adherence to Limited Use requirements
+- **Publishing Strategy**:
+  - Start with "Unlisted" visibility for beta testing
+  - Gather feedback before public release
+  - Phased rollout recommended (5% → 50% → 100%)
+- **Key Files**:
+  - Extension package excludes test files, documentation, and development files
+  - ZIP command: `zip -r pm-tools-extension.zip . -x "test-*" "*.md" ".*" "*~" "*.zip"`
 
 ### Known Issues (Resolved)
 - ~~**Results Hidden in Fold 2**: Results were not immediately visible after analysis~~ ✅ Fixed June 2025
