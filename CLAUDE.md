@@ -547,7 +547,7 @@ uv sync --dev
 curl http://localhost:8000/health
 ```
 
-### Chrome Extension Issues
+### Chrome Extension Issues (Updated June 2025)
 ```bash
 # Extension not updating after changes
 # 1. Go to chrome://extensions/
@@ -559,22 +559,42 @@ curl http://localhost:8000/health
 # Cause: Missing name attributes on form inputs
 # Solution: Ensure all inputs have name="fieldName" attributes
 # Example: <input type="number" id="controlUsers" name="controlUsers">
+# Fixed in: popup.html (all form inputs now have name attributes)
 
 # Service worker registration failed (Status code: 15)
-# Cause: Problematic lifecycle management code
-# Solution: Remove keepAlive() and non-existent event listeners
-# Check: chrome://extensions/ → "service worker" should show as active
+# Error: "Cannot read properties of undefined (reading 'onAlarm')"
+# Cause: Missing 'alarms' permission in manifest.json
+# Solution: Add "alarms" to permissions array in manifest.json
+# Fixed: Added alarms permission for periodic maintenance tasks
+
+# Gemini API errors (June 2025)
+# Error: "Cannot read properties of undefined (reading '0')"
+# Cause: Response structure validation missing
+# Solution: Add comprehensive error checking before accessing nested properties
+# Updates:
+#   - Default model: gemini-2.5-flash (was gemini-2.0-flash-exp)
+#   - Added responseMimeType: 'text/plain' to generation config
+#   - Increased maxOutputTokens: 4096 (was 1024)
+#   - Handle MAX_TOKENS finish reason as normal completion
 
 # LLM output not rendering properly
-# Cause: Markdown syntax displayed as raw text
-# Solution: Use formatLLMResponse() function in shared.js
-# Debug: Check console for LLM response format
+# Symptoms: Raw markdown like **text** and *text* showing
+# Cause: Inadequate markdown parsing, conflicts between bold/italic
+# Solution: Rewritten formatLLMResponse() with proper parsing
+# Supports:
+#   - Headers: ### Title
+#   - Bold: **text**
+#   - Italic: *text*
+#   - Lists: *, -, • for bullets; 1. 2. for numbered
+#   - Code: `inline code`
+#   - Proper paragraph handling
 
 # Model selection not working
 # 1. Check API key is valid in settings
 # 2. Verify model fetch endpoints are accessible
 # 3. Check browser console for API errors
 # 4. Clear model cache in storage to force refresh
+# Note: Model lists are cached for 24 hours to reduce API calls
 ```
 
 ## ✅ Standalone Chrome Extension Implementation Details
@@ -662,6 +682,93 @@ curl http://localhost:8000/health
 2. **No External Dependencies**: Pure JavaScript implementation
 3. **Content Security Policy**: Strict CSP in manifest
 4. **Input Sanitization**: All user inputs sanitized before display
+
+### API Response Handling (June 2025)
+
+#### Gemini 2.5 Response Structure
+```javascript
+{
+  "candidates": [{
+    "content": {
+      "parts": [{
+        "text": "Generated response text"
+      }],
+      "role": "model"
+    },
+    "finishReason": "STOP" | "MAX_TOKENS" | "SAFETY",
+    "index": 0
+  }],
+  "usageMetadata": {
+    "promptTokenCount": 267,
+    "candidatesTokenCount": 334,
+    "totalTokenCount": 1289,
+    "thoughtsTokenCount": 688  // New in Gemini 2.5
+  },
+  "modelVersion": "gemini-2.5-flash"
+}
+```
+
+#### Response Validation
+The extension now validates every level of the response structure:
+1. Check if `candidates` array exists and has length
+2. Validate `candidate.content` exists
+3. Ensure `candidate.content.parts` is an array with items
+4. Verify `parts[0].text` exists and is a string
+5. Handle various `finishReason` values appropriately
+
+### Markdown Rendering Implementation
+
+The `formatLLMResponse()` function in `shared.js` provides comprehensive markdown parsing:
+
+#### Supported Markdown
+- **Headers**: `# H1` through `###### H6`
+- **Bold text**: `**text**` → `<strong>text</strong>`
+- **Italic text**: `*text*` → `<em>text</em>`
+- **Inline code**: `` `code` `` → `<code>code</code>`
+- **Bullet lists**: `*`, `-`, or `•` at line start
+- **Numbered lists**: `1.`, `2.`, etc. at line start
+- **Paragraph handling**: Automatic `<p>` wrapping with proper spacing
+
+#### Implementation Details
+1. **Order matters**: Bold parsing before italic to prevent conflicts
+2. **Negative lookbehind/ahead**: Prevents single asterisks from matching within double asterisks
+3. **List grouping**: Consecutive list items are wrapped in `<ul>` or `<ol>`
+4. **Smart paragraphs**: Doesn't wrap existing block elements
+
+### Test Files
+
+The extension includes test files for debugging:
+
+#### test-gemini-api.html
+- Tests direct API calls to Gemini
+- Verifies API key functionality
+- Shows detailed response structure
+- Helps debug connection issues
+
+#### test-markdown.html
+- Tests markdown parsing functionality
+- Includes complex test cases
+- Visual verification of formatting
+- Console logging for debugging
+
+### June 2025 Updates Summary
+
+1. **Gemini API Updates**:
+   - Default model: `gemini-2.5-flash`
+   - Token limit: 4096 (increased from 1024)
+   - New `thoughtsTokenCount` in response metadata
+   - `responseMimeType: 'text/plain'` in generation config
+
+2. **Bug Fixes**:
+   - Added `alarms` permission to manifest.json
+   - Fixed form inputs with name attributes
+   - Comprehensive API response validation
+   - Improved markdown rendering with bold/italic support
+
+3. **Performance**:
+   - 24-hour model list caching
+   - Increased token limits for complete responses
+   - Better error messages for debugging
 
 ## Development Workflow
 
