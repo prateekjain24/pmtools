@@ -352,17 +352,49 @@ PMTools.llm = {
     }
     
     const data = await response.json();
+    console.log('Full Gemini API response:', JSON.stringify(data, null, 2));
     
     if (!data.candidates || data.candidates.length === 0) {
       throw new Error('No response generated from Gemini');
     }
     
     const candidate = data.candidates[0];
+    console.log('Candidate structure:', JSON.stringify(candidate, null, 2));
+    
+    // Check for safety/error responses first
     if (candidate.finishReason === 'SAFETY') {
       throw new Error('Response blocked by safety filters');
     }
     
-    return candidate.content.parts[0].text;
+    // Check if other finish reasons indicate problems
+    if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+      console.warn('Unusual finish reason:', candidate.finishReason);
+    }
+    
+    // Validate content structure exists
+    if (!candidate.content) {
+      console.error('Candidate missing content:', candidate);
+      throw new Error('Gemini response missing content property');
+    }
+    
+    if (!candidate.content.parts || !Array.isArray(candidate.content.parts)) {
+      console.error('Content missing parts:', candidate.content);
+      throw new Error('Gemini response missing parts array');
+    }
+    
+    if (candidate.content.parts.length === 0) {
+      console.error('Parts array is empty:', candidate.content);
+      throw new Error('Gemini response parts array is empty');
+    }
+    
+    // Check if text exists in the first part
+    const firstPart = candidate.content.parts[0];
+    if (!firstPart || typeof firstPart.text !== 'string') {
+      console.error('First part missing text:', firstPart);
+      throw new Error('Gemini response missing text content');
+    }
+    
+    return firstPart.text;
   },
   
   /**
