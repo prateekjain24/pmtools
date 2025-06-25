@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Structured LLM Output</title>
+  <link rel="stylesheet" href="popup.css">
+  <style>
+    body {
+      padding: 20px;
+      width: auto;
+      min-width: 800px;
+      max-height: none;
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .test-controls {
+      margin: 20px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Structured LLM Output</h1>
+  
+  <div class="test-controls">
+    <h2>Test Controls</h2>
+    <p>This test page simulates structured LLM responses to verify the JSON output rendering works correctly.</p>
+    
+    <button id="testHypothesisBtn" class="btn-primary">Test Hypothesis Analysis</button>
+    <button id="testResultsBtn" class="btn-primary">Test Results Interpretation</button>
+    <button id="testBrokenMarkdownBtn" class="btn-secondary">Test Broken Markdown (Old)</button>
+    <button id="clearBtn" class="btn-secondary">Clear Results</button>
+  </div>
+  
+  <div id="results"></div>
+  
+  <script src="shared.js"></script>
+  <script src="llm-schemas.js"></script>
+  <script src="llm-client.js"></script>
+  
+  <script>
+    // Test data for structured hypothesis analysis
+    const mockHypothesisData = {
+      clarityScore: 3,
+      strengths: [
+        "Identifies a specific UI element (Call-to-Action)",
+        "Clear direction of impact (increase clicks)",
+        "Highlights an assumption to test"
+      ],
+      improvements: [
+        "Ambiguity of 'Prominent' - needs specific changes defined",
+        "Missing user segment - who are we targeting?",
+        "No defined success criteria or percentage increase",
+        "Potential negative impacts not considered"
+      ],
+      improvedVersion: "For first-time visitors on our Product Detail Pages (PDPs), increasing the visual prominence of the 'Add to Cart' button (by making it 20% larger and changing its background color to a contrasting brand accent color) will increase the Product Page 'Add to Cart' Click-Through Rate by 8%, leading to a higher conversion rate to purchase.",
+      successMetrics: {
+        primary: "Product Page 'Add to Cart' Click-Through Rate",
+        secondary: [
+          "Overall Conversion Rate (PDP View to Purchase)",
+          "Average Order Value (AOV)",
+          "Time on Page (PDP)",
+          "Bounce Rate (PDP)"
+        ],
+        guardrails: [
+          "Overall Site Conversion Rate",
+          "Customer Support Tickets related to UI/Navigation",
+          "Page Load Time (PDP)",
+          "Click-Through Rate on other important CTAs"
+        ]
+      },
+      businessConsiderations: {
+        estimatedImpact: "If successful, estimated $4,000 in additional revenue per month ($48,000 annually) based on current traffic and AOV",
+        resourcesNeeded: {
+          design: "0.5 - 1 day for button variations",
+          engineering: "2-3 days for A/B test implementation",
+          analytics: "0.5 day for tracking setup",
+          product: "1-2 days for planning and coordination"
+        },
+        stakeholders: [
+          "Design Lead",
+          "Engineering Lead",
+          "Marketing/Growth Team",
+          "Analytics/Data Science",
+          "VP Product/GM"
+        ],
+        alignmentWithGoals: [
+          "Directly supports Q4 goal to increase conversion rate",
+          "Improves user experience for new visitors",
+          "Drives revenue growth with minimal investment"
+        ]
+      }
+    };
+    
+    // Test data for structured results interpretation
+    const mockResultsData = {
+      bottomLine: "The test showed a statistically significant 12% lift in conversions, exceeding our 8% target. This is a clear win that will drive meaningful revenue impact.",
+      shipDecision: {
+        recommendation: "SHIP IT",
+        confidence: "HIGH",
+        keyReasons: [
+          "12% lift exceeds our 8% MDE target",
+          "Statistically significant with p-value < 0.001",
+          "No negative impact on secondary metrics"
+        ],
+        caveats: [
+          "Monitor performance for mobile users specifically",
+          "Consider A/B testing color variations further"
+        ]
+      },
+      practicalSignificance: {
+        isImpactful: true,
+        businessValue: "Projected $5,760/month additional revenue based on 12% lift",
+        effortVsReward: "WORTH IT"
+      },
+      riskAssessment: {
+        potentialIssues: [
+          "Button fatigue if overused across site",
+          "Brand consistency concerns with new color"
+        ],
+        affectedSegments: [
+          "Returning users might find change jarring",
+          "Color-blind users need accessibility check"
+        ],
+        technicalConcerns: [
+          "CSS changes need cross-browser testing",
+          "Monitor page load performance"
+        ]
+      },
+      nextSteps: [
+        {
+          action: "Schedule rollout meeting with engineering",
+          owner: "PM (You)",
+          timeline: "This week"
+        },
+        {
+          action: "Prepare accessibility audit for new button",
+          owner: "Design Lead",
+          timeline: "Next 3 days"
+        },
+        {
+          action: "Document learnings for design system",
+          owner: "UX Team",
+          timeline: "Next sprint"
+        }
+      ],
+      strategicQuestions: [
+        "Should we test similar prominence changes on other key CTAs?",
+        "How does this interact with our upcoming checkout redesign?",
+        "What's the optimal button prominence across different page types?"
+      ]
+    };
+    
+    // Mock the broken markdown example
+    const brokenMarkdownExample = `**3/10** It's low because while it identifies a *target element* (CTA) and a *desired outcome* (increase clicks), it's incredibly vague on *how* it will be made more prominent and *which* clicks we're talking about.
+
+### 2. What's Working Well:
+* **Identifies a specific UI element:** We know we're focusing on a Call-to-Action
+* **Clear direction of impact:** The goal is to *increase* something
+* **Highlights an assumption:** It forces us to think about whether prominence *actually* drives clicks
+
+### 3. Key Risks & Gaps:
+* **Ambiguity of "Prominent":** This is the biggest risk.
+* **"Clicks" are not always equal:** Increasing *any* click isn't necessarily good.
+* **Missing User Segment:** Who are we targeting?`;
+    
+    // Test functions
+    document.getElementById('testHypothesisBtn').addEventListener('click', () => {
+      const rendered = LLMSchemas.renderHypothesisAnalysis(mockHypothesisData);
+      
+      const html = `
+        <div class="test-section">
+          <h2>Structured Hypothesis Analysis</h2>
+          <h3>Raw JSON Data:</h3>
+          <pre>${JSON.stringify(mockHypothesisData, null, 2)}</pre>
+          
+          <h3>Rendered Output:</h3>
+          <div class="ai-insight">
+            <h3>🤖 AI Hypothesis Analysis</h3>
+            
+            <div class="insight-section">
+              <div class="insight-label">Clarity Score:</div>
+              <div class="insight-content">${rendered.clarityScore}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Strengths:</div>
+              <div class="insight-content">${rendered.strengths}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Areas for Improvement:</div>
+              <div class="insight-content">${rendered.improvements}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Improved Version:</div>
+              <div class="insight-content">${rendered.improvedVersion}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Success Metrics:</div>
+              <div class="insight-content">${rendered.successMetrics}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Business Considerations:</div>
+              <div class="insight-content">${rendered.businessConsiderations}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('results').innerHTML = html;
+    });
+    
+    document.getElementById('testResultsBtn').addEventListener('click', () => {
+      const rendered = LLMSchemas.renderResultsInterpretation(mockResultsData);
+      
+      const html = `
+        <div class="test-section">
+          <h2>Structured Results Interpretation</h2>
+          <h3>Raw JSON Data:</h3>
+          <pre>${JSON.stringify(mockResultsData, null, 2)}</pre>
+          
+          <h3>Rendered Output:</h3>
+          <div class="ai-insight">
+            <h3>🤖 AI Results Interpretation</h3>
+            
+            <div class="insight-section">
+              <div class="insight-label">Key Takeaway:</div>
+              <div class="insight-content">${rendered.keyTakeaway}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Ship Decision:</div>
+              <div class="insight-content">${rendered.recommendation}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Practical Significance:</div>
+              <div class="insight-content">${rendered.practicalSignificance}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Risk Assessment:</div>
+              <div class="insight-content">${rendered.riskAssessment}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Next Steps:</div>
+              <div class="insight-content">${rendered.nextSteps}</div>
+            </div>
+            
+            <div class="insight-section">
+              <div class="insight-label">Strategic Questions:</div>
+              <div class="insight-content">${rendered.followUpQuestions}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('results').innerHTML = html;
+    });
+    
+    document.getElementById('testBrokenMarkdownBtn').addEventListener('click', () => {
+      const html = `
+        <div class="test-section">
+          <h2>Old Markdown Parsing (Broken)</h2>
+          <h3>Raw Markdown:</h3>
+          <pre>${brokenMarkdownExample}</pre>
+          
+          <h3>Parsed with formatLLMResponse():</h3>
+          <div class="ai-insight">
+            ${PMTools.utils.formatLLMResponse(brokenMarkdownExample)}
+          </div>
+          
+          <h3>Issues Visible:</h3>
+          <ul>
+            <li>**3/10** not properly parsed</li>
+            <li>Headers with trailing bold markers</li>
+            <li>Inconsistent formatting</li>
+          </ul>
+        </div>
+      `;
+      
+      document.getElementById('results').innerHTML = html;
+    });
+    
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      document.getElementById('results').innerHTML = '';
+    });
+  </script>
+</body>
+</html>

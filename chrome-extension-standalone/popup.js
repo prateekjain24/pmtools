@@ -460,39 +460,42 @@ function displayAnalyzeResults(data) {
 }
 
 function generateAIAnalysisHTML(analysis, isFallback = false) {
+  // Check if using structured output (already HTML formatted)
+  const isStructured = analysis.usingStructuredOutput;
+  
   return `
     <div class="ai-insight ${isFallback ? 'ai-fallback' : ''}">
       <h3>🤖 AI Hypothesis Analysis ${isFallback ? '(Offline Mode)' : ''}</h3>
       
       <div class="insight-section">
         <div class="insight-label">Clarity Score:</div>
-        <div class="insight-content">${analysis.analysis.clarityScore}/10</div>
+        <div class="insight-content">${isStructured ? analysis.analysis.clarityScore : `${analysis.analysis.clarityScore}/10`}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Strengths:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.strengths)}</div>
+        <div class="insight-content">${isStructured ? analysis.analysis.strengths : PMTools.utils.formatLLMResponse(analysis.analysis.strengths)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Areas for Improvement:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.improvements)}</div>
+        <div class="insight-content">${isStructured ? analysis.analysis.improvements : PMTools.utils.formatLLMResponse(analysis.analysis.improvements)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Improved Version:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.improvedVersion)}</div>
+        <div class="insight-content">${isStructured ? analysis.analysis.improvedVersion : PMTools.utils.formatLLMResponse(analysis.analysis.improvedVersion)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Success Metrics:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.successMetrics)}</div>
+        <div class="insight-content">${isStructured ? analysis.analysis.successMetrics : PMTools.utils.formatLLMResponse(analysis.analysis.successMetrics)}</div>
       </div>
       
       ${analysis.analysis.businessConsiderations ? `
       <div class="insight-section">
         <div class="insight-label">Business Considerations:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.businessConsiderations)}</div>
+        <div class="insight-content">${isStructured ? analysis.analysis.businessConsiderations : PMTools.utils.formatLLMResponse(analysis.analysis.businessConsiderations)}</div>
       </div>
       ` : ''}
     </div>
@@ -500,42 +503,45 @@ function generateAIAnalysisHTML(analysis, isFallback = false) {
 }
 
 function generateAIInterpretationHTML(interpretation, isFallback = false) {
+  // Check if using structured output (already HTML formatted)
+  const isStructured = interpretation.usingStructuredOutput;
+  
   return `
     <div class="ai-insight ${isFallback ? 'ai-fallback' : ''}">
       <h3>🤖 AI Results Interpretation ${isFallback ? '(Offline Mode)' : ''}</h3>
       
       <div class="insight-section">
         <div class="insight-label">Key Takeaway:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.keyTakeaway)}</div>
+        <div class="insight-content">${isStructured ? interpretation.interpretation.keyTakeaway : PMTools.utils.formatLLMResponse(interpretation.interpretation.keyTakeaway)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Ship Decision:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.recommendation)}</div>
+        <div class="insight-content">${isStructured ? interpretation.interpretation.recommendation : PMTools.utils.formatLLMResponse(interpretation.interpretation.recommendation)}</div>
       </div>
       
       ${interpretation.interpretation.practicalSignificance ? `
       <div class="insight-section">
         <div class="insight-label">Practical Significance:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.practicalSignificance)}</div>
+        <div class="insight-content">${isStructured ? interpretation.interpretation.practicalSignificance : PMTools.utils.formatLLMResponse(interpretation.interpretation.practicalSignificance)}</div>
       </div>
       ` : ''}
       
       ${interpretation.interpretation.riskAssessment ? `
       <div class="insight-section">
         <div class="insight-label">Risk Assessment:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.riskAssessment)}</div>
+        <div class="insight-content">${isStructured ? interpretation.interpretation.riskAssessment : PMTools.utils.formatLLMResponse(interpretation.interpretation.riskAssessment)}</div>
       </div>
       ` : ''}
       
       <div class="insight-section">
         <div class="insight-label">Next Steps:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.nextSteps)}</div>
+        <div class="insight-content">${isStructured ? interpretation.interpretation.nextSteps : PMTools.utils.formatLLMResponse(interpretation.interpretation.nextSteps)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Strategic Questions:</div>
-        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.followUpQuestions)}</div>
+        <div class="insight-content">${isStructured ? interpretation.interpretation.followUpQuestions : PMTools.utils.formatLLMResponse(interpretation.interpretation.followUpQuestions)}</div>
       </div>
     </div>
   `;

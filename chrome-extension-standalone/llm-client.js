@@ -327,7 +327,7 @@ PMTools.llm = {
           topP: 0.8,
           topK: 40,
           maxOutputTokens: 4096,
-          responseMimeType: 'text/plain'
+          responseMimeType: options.jsonMode ? 'application/json' : 'text/plain'
         }
       }),
       provider: PMTools.LLM_PROVIDERS.GEMINI
@@ -398,6 +398,38 @@ PMTools.llm = {
   },
   
   /**
+   * Call Gemini API with structured JSON output
+   * @param {string} prompt - Text prompt
+   * @param {string} schemaName - Name of the schema to use
+   * @param {Object} options - Call options
+   * @returns {Promise<Object>} Parsed JSON response
+   */
+  async callGeminiStructured(prompt, schemaName, options = {}) {
+    // Append schema to prompt
+    const structuredPrompt = `${prompt}
+
+${LLMSchemas.generateSchemaPrompt(schemaName)}`;
+
+    try {
+      // Call with JSON mode enabled
+      const response = await this.callGemini(structuredPrompt, { ...options, jsonMode: true });
+      
+      // Parse and validate the response
+      const validation = LLMSchemas.validateResponse(response, schemaName);
+      
+      if (!validation.valid) {
+        console.error('Invalid structured response:', validation.error);
+        throw new Error(`Invalid response structure: ${validation.error}`);
+      }
+      
+      return validation.data;
+    } catch (error) {
+      console.error('Structured Gemini call failed:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Call Anthropic Claude API
    * @param {string} prompt - Text prompt
    * @param {Object} options - Call options
@@ -446,6 +478,49 @@ PMTools.llm = {
     }
     
     return data.content[0].text;
+  },
+
+  /**
+   * Call Anthropic API with structured JSON output
+   * @param {string} prompt - Text prompt
+   * @param {string} schemaName - Name of the schema to use
+   * @param {Object} options - Call options
+   * @returns {Promise<Object>} Parsed JSON response
+   */
+  async callAnthropicStructured(prompt, schemaName, options = {}) {
+    // Append schema to prompt with clear instructions
+    const structuredPrompt = `${prompt}
+
+${LLMSchemas.generateSchemaPrompt(schemaName)}
+
+Remember: Return ONLY the JSON object, no additional text or markdown formatting.`;
+
+    try {
+      // Call Anthropic API
+      const response = await this.callAnthropic(structuredPrompt, options);
+      
+      // Try to extract JSON from response (Anthropic might add text around it)
+      let jsonStr = response.trim();
+      
+      // If response contains markdown code blocks, extract the JSON
+      const jsonMatch = jsonStr.match(/```json\n([\s\S]*?)\n```/) || jsonStr.match(/```\n([\s\S]*?)\n```/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1];
+      }
+      
+      // Parse and validate the response
+      const validation = LLMSchemas.validateResponse(jsonStr, schemaName);
+      
+      if (!validation.valid) {
+        console.error('Invalid structured response:', validation.error);
+        throw new Error(`Invalid response structure: ${validation.error}`);
+      }
+      
+      return validation.data;
+    } catch (error) {
+      console.error('Structured Anthropic call failed:', error);
+      throw error;
+    }
   },
   
   /**
@@ -504,6 +579,38 @@ PMTools.llm = {
 Analyze this hypothesis:
 "${hypothesis}"
 
+Provide actionable feedback in the following structured format:`;
+
+    try {
+      // Try structured output first
+      let structuredData;
+      
+      if (provider === PMTools.LLM_PROVIDERS.GEMINI) {
+        structuredData = await this.callGeminiStructured(prompt, 'HypothesisAnalysis');
+      } else {
+        structuredData = await this.callAnthropicStructured(prompt, 'HypothesisAnalysis');
+      }
+      
+      // Use the structured renderer
+      const rendered = LLMSchemas.renderHypothesisAnalysis(structuredData);
+      
+      return {
+        success: true,
+        analysis: rendered,
+        structuredData: structuredData,
+        usingStructuredOutput: true
+      };
+      
+    } catch (structuredError) {
+      console.warn('Structured output failed, falling back to text parsing:', structuredError);
+      
+      // Fallback to old text-based approach
+      try {
+        const textPrompt = `You are an experienced Product Manager helping a colleague prepare for an A/B test. Be practical, friendly, and focus on business impact.
+
+Analyze this hypothesis:
+"${hypothesis}"
+
 Please provide actionable feedback:
 
 **1. Clarity Score (1-10):** Rate how clear and testable this hypothesis is
@@ -533,12 +640,12 @@ Please provide actionable feedback:
 - Guardrail metrics (to ensure nothing breaks)
 
 Be specific and practical. Think like a PM who needs to get buy-in and ship this test.`;
-
-    try {
-      const response = await this.callProvider(provider, prompt);
-      return this.parseHypothesisAnalysis(response);
-    } catch (error) {
-      return this.getFallbackHypothesisAnalysis(hypothesis);
+        
+        const response = await this.callProvider(provider, textPrompt);
+        return this.parseHypothesisAnalysis(response);
+      } catch (error) {
+        return this.getFallbackHypothesisAnalysis(hypothesis);
+      }
     }
   },
   
@@ -551,6 +658,44 @@ Be specific and practical. Think like a PM who needs to get buy-in and ship this
    */
   async interpretResults(results, context = '', provider = PMTools.LLM_PROVIDERS.GEMINI) {
     const prompt = `You are a seasoned Product Manager helping a colleague interpret A/B test results. Be direct, practical, and focus on making the right business decision.
+
+**What We Tested:**
+${context || 'No context provided'}
+
+**The Numbers:**
+- Control: ${(results.controlConversionRate * 100).toFixed(1)}% conversion (${results.controlUsers || 'N/A'} users, ${results.controlConversions || 'N/A'} conversions)
+- Treatment: ${(results.treatmentConversionRate * 100).toFixed(1)}% conversion (${results.treatmentUsers || 'N/A'} users, ${results.treatmentConversions || 'N/A'} conversions)
+- Relative Lift: ${(results.relativeLift * 100).toFixed(1)}%
+- Statistical Significance: ${results.isSignificant ? 'YES' : 'NO'} (p-value: ${results.pValue.toFixed(4)})
+
+Provide your interpretation in the following structured format:`;
+
+    try {
+      // Try structured output first
+      let structuredData;
+      
+      if (provider === PMTools.LLM_PROVIDERS.GEMINI) {
+        structuredData = await this.callGeminiStructured(prompt, 'ResultsInterpretation');
+      } else {
+        structuredData = await this.callAnthropicStructured(prompt, 'ResultsInterpretation');
+      }
+      
+      // Use the structured renderer
+      const rendered = LLMSchemas.renderResultsInterpretation(structuredData);
+      
+      return {
+        success: true,
+        interpretation: rendered,
+        structuredData: structuredData,
+        usingStructuredOutput: true
+      };
+      
+    } catch (structuredError) {
+      console.warn('Structured output failed, falling back to text parsing:', structuredError);
+      
+      // Fallback to old text-based approach
+      try {
+        const textPrompt = `You are a seasoned Product Manager helping a colleague interpret A/B test results. Be direct, practical, and focus on making the right business decision.
 
 **What We Tested:**
 ${context || 'No context provided'}
@@ -590,11 +735,11 @@ What are the 3 most important questions we should be asking about these results 
 
 Remember: Good PMs ship features that move metrics AND create long-term value. Be honest about trade-offs.`;
 
-    try {
-      const response = await this.callProvider(provider, prompt);
-      return this.parseResultsInterpretation(response);
-    } catch (error) {
-      return this.getFallbackResultsInterpretation(results);
+        const response = await this.callProvider(provider, textPrompt);
+        return this.parseResultsInterpretation(response);
+      } catch (error) {
+        return this.getFallbackResultsInterpretation(results);
+      }
     }
   },
   
