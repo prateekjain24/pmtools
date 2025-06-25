@@ -546,10 +546,87 @@ function showResults(title, content) {
   document.getElementById('resultsContent').innerHTML = content;
   document.getElementById('resultsSection').style.display = 'block';
   
+  // Show a brief notification that results are ready
+  showResultsNotification();
+  
+  // Optionally collapse the form to make more room for results
+  collapseActiveForm();
+  
   // Auto-scroll to results with delay for rendering
   setTimeout(() => {
     PMTools.utils.scrollToResults();
   }, 100);
+}
+
+function showResultsNotification() {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = 'results-notification';
+  notification.innerHTML = '📊 Results ready below ↓';
+  notification.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 124, 186, 0.3);
+    z-index: 1000;
+    animation: slideInFade 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Remove notification after a short delay
+  setTimeout(() => {
+    notification.style.animation = 'slideOutFade 0.3s ease-out';
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
+  }, 1500);
+}
+
+function collapseActiveForm() {
+  // Get the active tab content
+  const activeTabContent = document.querySelector('.tab-content.active');
+  if (activeTabContent) {
+    // Add a collapse class to the form
+    activeTabContent.classList.add('collapsed');
+    
+    // Add a toggle button to expand/collapse
+    const existingToggle = document.getElementById('formToggle');
+    if (!existingToggle) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.id = 'formToggle';
+      toggleBtn.className = 'form-toggle-btn';
+      toggleBtn.innerHTML = '▼ Show Form';
+      toggleBtn.style.cssText = `
+        width: 100%;
+        padding: 8px;
+        background: var(--background-light);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        display: none;
+      `;
+      
+      // Insert toggle button before the form
+      activeTabContent.insertBefore(toggleBtn, activeTabContent.firstChild);
+      
+      toggleBtn.addEventListener('click', () => {
+        activeTabContent.classList.toggle('collapsed');
+        toggleBtn.innerHTML = activeTabContent.classList.contains('collapsed') 
+          ? '▼ Show Form' 
+          : '▲ Hide Form';
+      });
+    }
+  }
 }
 
 function hideResults() {
@@ -614,6 +691,17 @@ function convertResultsToCSV(results) {
 
 function startNewCalculation() {
   hideResults();
+  
+  // Restore the form if it was collapsed
+  const activeTabContent = document.querySelector('.tab-content.active');
+  if (activeTabContent) {
+    activeTabContent.classList.remove('collapsed');
+    const toggleBtn = document.getElementById('formToggle');
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '▲ Hide Form';
+    }
+  }
+  
   document.querySelector('.tab-content.active form').reset();
   updateMDELabels();
   

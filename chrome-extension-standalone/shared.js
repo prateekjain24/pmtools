@@ -268,18 +268,46 @@ PMTools.utils = {
   
   // Scroll helpers
   scrollToResults() {
-    const resultsSection = document.getElementById('results-section');
+    const resultsSection = document.getElementById('resultsSection');
     if (resultsSection) {
-      resultsSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+      // Make results visible first
+      resultsSection.style.display = 'block';
       
-      // Add highlight effect
-      resultsSection.style.border = '2px solid #007cba';
+      // For Chrome extension popups, we need to scroll the entire body
+      // Using a small delay to ensure DOM is fully rendered
       setTimeout(() => {
-        resultsSection.style.border = '';
-      }, 2000);
+        // Get the position of results section
+        const rect = resultsSection.getBoundingClientRect();
+        const scrollTop = window.pageYOffset + rect.top - 20; // 20px padding from top
+        
+        // Smooth scroll to results
+        window.scrollTo({
+          top: scrollTop,
+          behavior: 'smooth'
+        });
+        
+        // Alternative method for Chrome extension context
+        resultsSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+        
+        // Add highlight effect with animation
+        resultsSection.style.transition = 'border 0.3s ease-in-out';
+        resultsSection.style.border = '3px solid #007cba';
+        resultsSection.style.borderRadius = '8px';
+        resultsSection.style.padding = '4px';
+        
+        // Add a subtle pulse animation
+        resultsSection.style.animation = 'pulse 0.5s ease-in-out 2';
+        
+        setTimeout(() => {
+          resultsSection.style.border = '';
+          resultsSection.style.padding = '';
+          resultsSection.style.animation = '';
+        }, 3000);
+      }, 150); // Delay to ensure DOM is ready
     }
   },
   
