@@ -111,33 +111,87 @@ PMTools.utils = {
     // First, escape HTML to prevent XSS
     let formatted = this.sanitizeHTML(text);
     
-    // Convert **bold** to <strong>
-    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    // Convert headers (###, ####, etc.) - must be done before other replacements
+    formatted = formatted.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
+      const level = hashes.length;
+      return `<h${level}>${content}</h${level}>`;
+    });
     
-    // Convert numbered lists (e.g., "1. Item" or "2. Item")
-    formatted = formatted.replace(/^(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
-    formatted = formatted.replace(/(<li>.*<\/li>)\s*(<li>)/g, '$1$2');
-    formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
+    // Convert **bold** to <strong> - improved regex to handle multi-line
+    formatted = formatted.replace(/\*\*([^\*]+(?:\*(?!\*)[^\*]*)*)\*\*/g, '<strong>$1</strong>');
     
-    // Convert bullet points (- or •)
-    formatted = formatted.replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>');
-    formatted = formatted.replace(/(<li>.*<\/li>)\s*(<li>)/g, '$1$2');
-    formatted = formatted.replace(/(<li>.*<\/li>)(?!.*<\/ol>)/s, '<ul>$1</ul>');
+    // Convert `code` to <code>
+    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
     
-    // Convert line breaks to <br> for better readability
-    formatted = formatted.replace(/\n\n/g, '</p><p>');
-    formatted = formatted.replace(/\n/g, '<br>');
+    // Process lists - collect consecutive list items and wrap them
+    const lines = formatted.split('\n');
+    const processedLines = [];
+    let inOrderedList = false;
+    let inUnorderedList = false;
+    let listItems = [];
     
-    // Wrap in paragraphs if not already wrapped
-    if (!formatted.includes('<p>') && !formatted.includes('<ol>') && !formatted.includes('<ul>')) {
-      formatted = '<p>' + formatted + '</p>';
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Check for numbered list item
+      const orderedMatch = line.match(/^(\d+)\.\s+(.+)$/);
+      if (orderedMatch) {
+        if (inUnorderedList) {
+          processedLines.push('<ul>' + listItems.join('') + '</ul>');
+          listItems = [];
+          inUnorderedList = false;
+        }
+        inOrderedList = true;
+        listItems.push(`<li>${orderedMatch[2]}</li>`);
+        continue;
+      }
+      
+      // Check for bullet list item (-, *, or •)
+      const unorderedMatch = line.match(/^[-*•]\s+(.+)$/);
+      if (unorderedMatch) {
+        if (inOrderedList) {
+          processedLines.push('<ol>' + listItems.join('') + '</ol>');
+          listItems = [];
+          inOrderedList = false;
+        }
+        inUnorderedList = true;
+        listItems.push(`<li>${unorderedMatch[1]}</li>`);
+        continue;
+      }
+      
+      // Not a list item - close any open lists
+      if (inOrderedList) {
+        processedLines.push('<ol>' + listItems.join('') + '</ol>');
+        listItems = [];
+        inOrderedList = false;
+      } else if (inUnorderedList) {
+        processedLines.push('<ul>' + listItems.join('') + '</ul>');
+        listItems = [];
+        inUnorderedList = false;
+      }
+      
+      processedLines.push(line);
     }
     
-    // Clean up any double wrapping
-    formatted = formatted.replace(/<p><ol>/g, '<ol>');
-    formatted = formatted.replace(/<\/ol><\/p>/g, '</ol>');
-    formatted = formatted.replace(/<p><ul>/g, '<ul>');
-    formatted = formatted.replace(/<\/ul><\/p>/g, '</ul>');
+    // Close any remaining open lists
+    if (inOrderedList) {
+      processedLines.push('<ol>' + listItems.join('') + '</ol>');
+    } else if (inUnorderedList) {
+      processedLines.push('<ul>' + listItems.join('') + '</ul>');
+    }
+    
+    formatted = processedLines.join('\n');
+    
+    // Convert line breaks to paragraphs - but not inside lists or headers
+    const blocks = formatted.split(/\n\n+/);
+    formatted = blocks.map(block => {
+      // Don't wrap if it's already a block element
+      if (block.match(/^<(?:h[1-6]|ul|ol|p)\b/)) {
+        return block;
+      }
+      // Replace single line breaks with <br> within paragraphs
+      return '<p>' + block.replace(/\n/g, '<br>') + '</p>';
+    }).join('\n');
     
     return formatted;
   },
