@@ -326,7 +326,7 @@ PMTools.llm = {
           temperature: 0.7,
           topP: 0.8,
           topK: 40,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096,
           responseMimeType: 'text/plain'
         }
       }),
@@ -367,7 +367,7 @@ PMTools.llm = {
     }
     
     // Check if other finish reasons indicate problems
-    if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+    if (candidate.finishReason && candidate.finishReason !== 'STOP' && candidate.finishReason !== 'MAX_TOKENS') {
       console.warn('Unusual finish reason:', candidate.finishReason);
     }
     
@@ -422,7 +422,7 @@ PMTools.llm = {
       },
       body: JSON.stringify({
         model: model,
-        max_tokens: 1024,
+        max_tokens: 4096,
         temperature: 0.7,
         messages: [{
           role: 'user',
