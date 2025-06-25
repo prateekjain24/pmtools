@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A/B Test Calculator - PMToolKit | Support & Documentation</title>
+    <meta name="description" content="Complete support documentation for A/B Test Calculator Chrome extension. Installation guide, features, FAQ, and troubleshooting.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f8f8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: #000;
+            color: #fff;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: #fff;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #f0f0f0;
+            color: #000;
+        }
+
+        main {
+            padding: 3rem 0;
+        }
+
+        section {
+            background: #fff;
+            margin: 2rem 0;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #000;
+            border-bottom: 2px solid #e5e5e5;
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+            color: #333;
+        }
+
+        .install-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .install-card {
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .install-card.recommended {
+            border-color: #000;
+            background: #f8f8f8;
+        }
+
+        .badge {
+            background: #000;
+            color: #fff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .btn {
+            background: #000;
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #000;
+            border: 2px solid #000;
+        }
+
+        .btn-secondary:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            border: 1px solid #e5e5e5;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        ol, ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        .code-block {
+            background: #f8f8f8;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            border-left: 4px solid #333;
+        }
+
+        .alert.warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e5e5e5;
+            padding: 1.5rem 0;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #000;
+        }
+
+        footer {
+            background: #000;
+            color: #fff;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #fff;
+            text-decoration: none;
+            opacity: 0.8;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .install-options {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">AB</div>
+                <div>
+                    <h1>A/B Test Calculator</h1>
+                    <p class="subtitle">Statistical power calculations & AI insights for your experiments</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-links">
+                <a href="#installation">Installation</a>
+                <a href="#quick-start">Quick Start</a>
+                <a href="#features">Features</a>
+                <a href="#ai-setup">AI Setup</a>
+                <a href="#faq">FAQ</a>
+                <a href="#support">Support</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>A/B Test Calculator is a powerful Chrome extension that brings statistical expertise directly to your browser. Whether you're designing experiments or analyzing results, get instant calculations and AI-powered insights without leaving your workflow.</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Statistical Calculations</h3>
+                        <p>Sample size, test duration, significance testing, and confidence intervals</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI Insights</h3>
+                        <p>Hypothesis analysis and results interpretation with your own API keys</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Privacy First</h3>
+                        <p>All calculations run locally in your browser. No data sent to external servers</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Instant Results</h3>
+                        <p>No waiting for server responses. Get calculations in milliseconds</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="installation">
+                <h2>Installation</h2>
+                
+                <div class="install-options">
+                    <div class="install-card recommended">
+                        <div class="badge">Recommended</div>
+                        <h3>Chrome Web Store</h3>
+                        <p>The easiest way to install and stay updated automatically.</p>
+                        <br>
+                        <a href="#" class="btn">Add to Chrome</a>
+                    </div>
+                    
+                    <div class="install-card">
+                        <h3>Developer Installation</h3>
+                        <p>For advanced users who want to try the latest features.</p>
+                        <br>
+                        <a href="https://github.com/prateekjain24/pmtools/tree/main/chrome-extension-standalone" class="btn btn-secondary">Download Source</a>
+                    </div>
+                </div>
+
+                <h3>Manual Installation Steps</h3>
+                <ol>
+                    <li>Download the extension files from GitHub</li>
+                    <li>Open Chrome and navigate to <code>chrome://extensions/</code></li>
+                    <li>Enable "Developer mode" in the top right corner</li>
+                    <li>Click "Load unpacked" and select the extension folder</li>
+                    <li>Pin the extension to your toolbar for easy access</li>
+                </ol>
+            </section>
+
+            <section id="quick-start">
+                <h2>Quick Start Guide</h2>
+                
+                <h3>1. Access the Extension</h3>
+                <p>Click the A/B Test Calculator icon in your browser toolbar. If you don't see it, click the puzzle piece icon and pin it.</p>
+
+                <h3>2. Validate Your Experiment Setup</h3>
+                <ul>
+                    <li><strong>Hypothesis:</strong> Describe what you're changing and expected impact</li>
+                    <li><strong>Baseline Rate:</strong> Current conversion rate (e.g., 5%)</li>
+                    <li><strong>Minimum Detectable Effect:</strong> Smallest change you want to detect (e.g., 0.5%)</li>
+                    <li><strong>Traffic:</strong> Daily visitors and allocation percentage</li>
+                </ul>
+
+                <h3>3. Get Instant Results</h3>
+                <p>The extension calculates:</p>
+                <ul>
+                    <li>Required sample size per variant</li>
+                    <li>Estimated test duration</li>
+                    <li>Statistical power analysis</li>
+                    <li>Trade-off scenarios</li>
+                </ul>
+
+                <h3>4. Analyze Your Results</h3>
+                <p>Once your test is complete, use the "Analyze Results" tab to:</p>
+                <ul>
+                    <li>Test statistical significance</li>
+                    <li>Calculate confidence intervals</li>
+                    <li>Get AI-powered interpretation (with API key)</li>
+                </ul>
+            </section>
+
+            <section id="features">
+                <h2>Features & Capabilities</h2>
+
+                <h3>Statistical Calculations</h3>
+                <ul>
+                    <li><strong>Sample Size Calculator:</strong> Determines required participants per variant</li>
+                    <li><strong>Power Analysis:</strong> Ensures your test can detect meaningful changes</li>
+                    <li><strong>Duration Estimation:</strong> Predicts how long your test needs to run</li>
+                    <li><strong>Significance Testing:</strong> Two-proportion z-test for result analysis</li>
+                    <li><strong>Confidence Intervals:</strong> 95% confidence bounds for your results</li>
+                    <li><strong>Effect Size:</strong> Relative and absolute lift calculations</li>
+                </ul>
+
+                <h3>AI-Powered Insights (Optional)</h3>
+                <ul>
+                    <li><strong>Hypothesis Analysis:</strong> AI evaluates your experiment design</li>
+                    <li><strong>Results Interpretation:</strong> Plain-English explanations of statistical findings</li>
+                    <li><strong>Recommendations:</strong> Next steps based on your results</li>
+                    <li><strong>Risk Assessment:</strong> Identifies potential issues with your experiment</li>
+                </ul>
+
+                <h3>Data Management</h3>
+                <ul>
+                    <li><strong>Local Storage:</strong> All data saved securely in your browser</li>
+                    <li><strong>Export Options:</strong> Download results as CSV or JSON</li>
+                    <li><strong>Form Memory:</strong> Automatically saves your inputs</li>
+                    <li><strong>Settings Backup:</strong> Export/import your configuration</li>
+                </ul>
+            </section>
+
+            <section id="ai-setup">
+                <h2>AI Setup (Optional)</h2>
+                
+                <div class="alert info">
+                    <strong>Note:</strong> AI features are completely optional. The extension works perfectly for statistical calculations without any API keys.
+                </div>
+
+                <h3>Google Gemini (Recommended)</h3>
+                <ol>
+                    <li>Visit <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+                    <li>Sign in with your Google account</li>
+                    <li>Click "Create API Key" and copy it</li>
+                    <li>Open A/B Test Calculator → Settings</li>
+                    <li>Paste your key in the Gemini API field</li>
+                    <li>Click "Test Connection" to verify</li>
+                </ol>
+
+                <h3>Anthropic Claude</h3>
+                <ol>
+                    <li>Visit <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></li>
+                    <li>Create an account or sign in</li>
+                    <li>Navigate to API Keys and create a new key</li>
+                    <li>Copy the key (it starts with "sk-ant-")</li>
+                    <li>Open A/B Test Calculator → Settings</li>
+                    <li>Paste your key in the Claude API field</li>
+                    <li>Click "Test Connection" to verify</li>
+                </ol>
+
+                <div class="alert warning">
+                    <strong>Security:</strong> Your API keys are stored locally in Chrome's encrypted storage and never sent to our servers. They're only used for direct communication with AI services.
+                </div>
+            </section>
+
+            <section id="faq">
+                <h2>Frequently Asked Questions</h2>
+
+                <div class="faq-item">
+                    <div class="faq-question">Do I need an internet connection to use the extension?</div>
+                    <div class="faq-answer">No! All statistical calculations run locally in your browser. You only need internet for optional AI insights.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">How accurate are the statistical calculations?</div>
+                    <div class="faq-answer">Very accurate. Our calculations use the same formulas as industry-standard tools like SciPy and match server-side implementations within numerical precision limits.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Is my data secure?</div>
+                    <div class="faq-answer">Yes. All data is stored locally in your browser using Chrome's secure storage API. We don't collect, store, or transmit any of your experiment data.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">What's the difference between this and online calculators?</div>
+                    <div class="faq-answer">Speed, privacy, and AI insights. No waiting for page loads, no data sent to servers, and optional AI analysis of your experiments.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Can I use this for non-web experiments?</div>
+                    <div class="faq-answer">Absolutely! The statistical methods work for any A/B test - mobile apps, email campaigns, offline experiments, etc.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Why do I need to provide my own AI API keys?</div>
+                    <div class="faq-answer">This ensures your data privacy and gives you control over AI costs. We don't have access to your experiment data or AI conversations.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Does this work in other browsers?</div>
+                    <div class="faq-answer">It works in most Chromium-based browsers (Edge, Brave, Opera) but is optimized for Chrome. Firefox support may come in the future.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">How do I export my results?</div>
+                    <div class="faq-answer">After running calculations, look for the export buttons. You can download results as CSV (for spreadsheets) or JSON (for other tools).</div>
+                </div>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+
+                <h3>Extension Not Loading</h3>
+                <ul>
+                    <li>Refresh the extension at <code>chrome://extensions/</code></li>
+                    <li>Make sure Chrome is up to date (version 88+)</li>
+                    <li>Try disabling and re-enabling the extension</li>
+                </ul>
+
+                <h3>AI Features Not Working</h3>
+                <ul>
+                    <li>Verify your API key is correct and has credits</li>
+                    <li>Use "Test Connection" in settings to diagnose issues</li>
+                    <li>Check if your API key has the necessary permissions</li>
+                    <li>Try switching between Gemini and Claude if one isn't working</li>
+                </ul>
+
+                <h3>Calculations Seem Wrong</h3>
+                <ul>
+                    <li>Double-check your input values (percentages should be decimals like 0.05 for 5%)</li>
+                    <li>Ensure your baseline rate is realistic for your context</li>
+                    <li>Consider if your MDE is too small to detect reliably</li>
+                </ul>
+
+                <h3>Performance Issues</h3>
+                <ul>
+                    <li>Clear the extension's data in settings if it becomes slow</li>
+                    <li>Restart Chrome if the extension becomes unresponsive</li>
+                    <li>Check if other extensions are conflicting</li>
+                </ul>
+            </section>
+
+            <section id="support">
+                <h2>Support & Contact</h2>
+                
+                <p>Need help? We're here to assist you!</p>
+
+                <h3>Self-Service Options</h3>
+                <ul>
+                    <li><strong>Built-in Help:</strong> Click the "?" tooltips throughout the extension</li>
+                    <li><strong>Settings Guide:</strong> Detailed explanations in the Settings page</li>
+                    <li><strong>This Documentation:</strong> Comprehensive guide you're reading now</li>
+                </ul>
+
+                <h3>Get in Touch</h3>
+                <ul>
+                    <li><strong>Chrome Web Store:</strong> Leave a review with your issue for quick response</li>
+                    <li><strong>Email:</strong> support@abtest.pmtoolkit.ai</li>
+                    <li><strong>GitHub:</strong> <a href="https://github.com/prateekjain24/pmtools/issues" target="_blank">Report bugs or request features</a></li>
+                </ul>
+
+                <h3>Community</h3>
+                <p>Connect with other Product Managers using A/B testing tools:</p>
+                <ul>
+                    <li>LinkedIn group discussions</li>
+                    <li>Product Manager forums</li>
+                    <li>GitHub discussions and issues</li>
+                </ul>
+
+                <div class="alert info">
+                    <strong>Response Time:</strong> We typically respond to support requests within 24 hours on business days.
+                </div>
+            </section>
+
+            <section id="privacy">
+                <h2>Privacy & Security</h2>
+                
+                <h3>Data Handling</h3>
+                <ul>
+                    <li><strong>Local Storage Only:</strong> All your experiment data stays in your browser</li>
+                    <li><strong>No Analytics:</strong> We don't track usage, clicks, or any user behavior</li>
+                    <li><strong>No External Servers:</strong> Calculations happen entirely in your browser</li>
+                    <li><strong>API Keys:</strong> Stored encrypted in Chrome's secure storage system</li>
+                </ul>
+
+                <h3>Permissions Explained</h3>
+                <ul>
+                    <li><strong>Storage:</strong> Save your preferences and form data locally</li>
+                    <li><strong>Notifications:</strong> Alert you when calculations complete (optional)</li>
+                    <li><strong>Host Permissions:</strong> Only for AI APIs when you provide keys</li>
+                </ul>
+
+                <h3>Third-Party Services</h3>
+                <p>When you provide API keys for AI features:</p>
+                <ul>
+                    <li>Data is sent directly to Google/Anthropic (not through our servers)</li>
+                    <li>Subject to their respective privacy policies</li>
+                    <li>You control what data is shared through your input</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://abtest.pmtoolkit.ai">abtest.pmtoolkit.ai</a>
+                <a href="mailto:support@abtest.pmtoolkit.ai">Support</a>
+                <a href="#privacy">Privacy Policy</a>
+                <a href="https://github.com/prateekjain24/pmtools/tree/main/chrome-extension-standalone">Source Code</a>
+            </div>
+            <p>&copy; 2025 abtest.pmtoolkit.ai. Made with ❤️ for Product Managers everywhere.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in navigation
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        function updateActiveNav() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (scrollY >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.background = '#f0f0f0';
+                    link.style.color = '#000';
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav);
+        updateActiveNav(); // Initial call
+    </script>
+</body>
+</html>

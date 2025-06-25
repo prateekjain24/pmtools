@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "PM Tools - A/B Testing Assistant",
+  "name": "A/B Test Calculator - PMToolKit",
   "version": "1.0.1",
   "description": "Statistical calculations and AI insights for A/B testing. Your personal PM consultant in the browser.",
   
