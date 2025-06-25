@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - A/B Testing Assistant</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <img src="assets/icons/icon48.png" alt="PM Tools" class="logo-icon">
+          <h1>PM Tools</h1>
+        </div>
+        <button id="settingsBtn" class="icon-btn" title="Settings">
+          ⚙️
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+      <button id="validateTab" class="tab-btn active" data-tab="validate">
+        🧪 Validate Setup
+      </button>
+      <button id="analyzeTab" class="tab-btn" data-tab="analyze">
+        📊 Analyze Results
+      </button>
+    </nav>
+
+    <!-- Validate Setup Tab -->
+    <div id="validateSection" class="tab-content active">
+      <form id="validateForm">
+        <div class="form-group">
+          <label for="hypothesis">
+            What's your hypothesis?
+            <span class="tooltip" data-tooltip="Describe what you'll change and what you expect to happen. Be specific!">ℹ️</span>
+          </label>
+          <textarea 
+            id="hypothesis" 
+            placeholder="e.g., Changing the CTA button from blue to green will increase checkout conversions by 15% for mobile users"
+            rows="3"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="metricName">
+            Primary Metric
+            <span class="tooltip" data-tooltip="What are you measuring? Conversion rate, click-through rate, etc.">ℹ️</span>
+          </label>
+          <input 
+            type="text" 
+            id="metricName" 
+            placeholder="e.g., Checkout conversion rate"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="baselineRate">
+            Current Baseline Rate
+            <span class="tooltip" data-tooltip="Your current conversion rate as a percentage (e.g., 5.2 for 5.2%)">ℹ️</span>
+          </label>
+          <div class="input-group">
+            <input 
+              type="number" 
+              id="baselineRate" 
+              placeholder="5.2"
+              step="0.01"
+              min="0"
+              max="100"
+              required
+            >
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mdeType">Minimum Detectable Effect (MDE)</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="mdeType" value="relative" checked>
+              <span class="radio-custom"></span>
+              Relative (% improvement)
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="mdeType" value="absolute">
+              <span class="radio-custom"></span>
+              Absolute (percentage points)
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="mdeValue">
+            <span id="mdeLabel">Expected Improvement</span>
+            <span class="tooltip" data-tooltip="The smallest improvement you want to reliably detect. Smaller values need larger sample sizes.">ℹ️</span>
+          </label>
+          <div class="input-group">
+            <input 
+              type="number" 
+              id="mdeValue" 
+              placeholder="10"
+              step="0.1"
+              min="0.1"
+              required
+            >
+            <span id="mdeSuffix" class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dailyUsers">
+            Estimated Daily Users
+            <span class="tooltip" data-tooltip="How many users visit your site/app per day on average?">ℹ️</span>
+          </label>
+          <input 
+            type="number" 
+            id="dailyUsers" 
+            placeholder="10000"
+            min="1"
+            required
+          >
+        </div>
+
+        <div class="advanced-section">
+          <button type="button" id="advancedToggle" class="advanced-toggle">
+            ⚙️ Advanced Settings
+          </button>
+          
+          <div id="advancedOptions" class="advanced-options">
+            <div class="form-group">
+              <label for="statisticalPower">
+                Statistical Power
+                <span class="tooltip" data-tooltip="Probability of detecting an effect if it exists. 80% is standard.">ℹ️</span>
+              </label>
+              <div class="input-group">
+                <input 
+                  type="number" 
+                  id="statisticalPower" 
+                  value="80"
+                  min="50"
+                  max="99"
+                  step="1"
+                >
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="significanceLevel">
+                Significance Level (α)
+                <span class="tooltip" data-tooltip="Probability of false positive. 5% is standard.">ℹ️</span>
+              </label>
+              <div class="input-group">
+                <input 
+                  type="number" 
+                  id="significanceLevel" 
+                  value="5"
+                  min="1"
+                  max="10"
+                  step="0.1"
+                >
+                <span class="input-suffix">%</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="numVariants">
+                Number of Variants
+                <span class="tooltip" data-tooltip="Total number of test groups (including control)">ℹ️</span>
+              </label>
+              <input 
+                type="number" 
+                id="numVariants" 
+                value="2"
+                min="2"
+                max="10"
+              >
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="validateBtn" class="btn-primary">
+          🧮 Validate Experiment
+        </button>
+
+        <div id="validateMessage" class="message" style="display: none;"></div>
+      </form>
+    </div>
+
+    <!-- Analyze Results Tab -->
+    <div id="analyzeSection" class="tab-content">
+      <form id="analyzeForm">
+        <div class="form-group">
+          <label for="experimentContext">
+            Experiment Context
+            <span class="tooltip" data-tooltip="Brief description of what you tested (optional but helpful for AI insights)">ℹ️</span>
+          </label>
+          <textarea 
+            id="experimentContext" 
+            placeholder="e.g., Tested green vs blue CTA button on checkout page for mobile users"
+            rows="2"
+          ></textarea>
+        </div>
+
+        <div class="variants-section">
+          <h3>Variant Results</h3>
+          
+          <div class="variant-group">
+            <h4>Control Group</h4>
+            <div class="variant-inputs">
+              <div class="form-group">
+                <label for="controlUsers">Users</label>
+                <input 
+                  type="number" 
+                  id="controlUsers" 
+                  placeholder="5000"
+                  min="1"
+                  required
+                >
+              </div>
+              <div class="form-group">
+                <label for="controlConversions">Conversions</label>
+                <input 
+                  type="number" 
+                  id="controlConversions" 
+                  placeholder="250"
+                  min="0"
+                  required
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="variant-group">
+            <h4>Treatment Group</h4>
+            <div class="variant-inputs">
+              <div class="form-group">
+                <label for="treatmentUsers">Users</label>
+                <input 
+                  type="number" 
+                  id="treatmentUsers" 
+                  placeholder="5000"
+                  min="1"
+                  required
+                >
+              </div>
+              <div class="form-group">
+                <label for="treatmentConversions">Conversions</label>
+                <input 
+                  type="number" 
+                  id="treatmentConversions" 
+                  placeholder="300"
+                  min="0"
+                  required
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="analyzeBtn" class="btn-primary">
+          📊 Analyze Results
+        </button>
+
+        <div id="analyzeMessage" class="message" style="display: none;"></div>
+      </form>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" class="results-section" style="display: none;">
+      <div class="results-header">
+        <h2 id="resultsTitle">Results</h2>
+        <button id="scrollTopBtn" class="scroll-top-btn" title="Scroll to top">🔝</button>
+      </div>
+      
+      <div id="resultsContent">
+        <!-- Results will be dynamically populated -->
+      </div>
+      
+      <div class="results-actions">
+        <button id="exportCsvBtn" class="btn-secondary">📥 Export CSV</button>
+        <button id="exportJsonBtn" class="btn-secondary">📥 Export JSON</button>
+        <button id="newCalculationBtn" class="btn-primary">🔄 New Calculation</button>
+      </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="tooltip" class="tooltip-popup" style="display: none;">
+      <div class="tooltip-content"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="shared.js"></script>
+  <script src="statistics.js"></script>
+  <script src="llm-client.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

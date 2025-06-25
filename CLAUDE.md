@@ -4,14 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an A/B Testing Validation & Analysis API designed to serve as a statistical consultant for Product Managers. The API provides two core utilities:
+PM Tools is a comprehensive A/B testing solution for Product Managers, consisting of two integrated components:
 
-1. **Pre-Experiment Feasibility Calculator** (`/validate/setup`) - Validates experiment design and calculates statistical feasibility
-2. **Post-Experiment Results Interpreter** (`/analyze/results`) - Interprets raw experiment data with LLM-powered insights
+1. **FastAPI Backend** (`app/`) - Statistical calculations and LLM-powered analysis
+2. **Chrome Extension** (`chrome-extension/`) - Browser-based UI for instant access
+
+The project serves as a "statistical consultant in a box" providing:
+- **Pre-Experiment Feasibility Calculator** - Validates experiment design before running tests
+- **Post-Experiment Results Interpreter** - Analyzes results with AI-powered insights
+
+### 🎯 Future Vision: Standalone Chrome Extension
+The next iteration will create a fully standalone Chrome extension where:
+- All statistical calculations run client-side in the browser
+- Users provide their own LLM API keys
+- No server setup or maintenance required
+- Instant availability for any PM with Chrome
+
+## Architecture Overview
+
+### Current Architecture (v1.0)
+```
+┌─────────────────────┐         ┌──────────────────────┐
+│  Chrome Extension   │ <-----> │   FastAPI Backend    │
+│  (UI + API Client)  │  HTTP   │ (Stats + LLM + API)  │
+└─────────────────────┘         └──────────────────────┘
+```
+
+### Future Architecture (v2.0)
+```
+┌─────────────────────────────────────┐
+│      Standalone Chrome Extension     │
+│  (UI + Stats + Direct LLM Calls)    │
+│         User's API Keys              │
+└─────────────────────────────────────┘
+```
 
 ## Development Commands
 
-### Setup and Installation
+### Backend (FastAPI) Commands
+
+#### Setup and Installation
 ```bash
 # Install dependencies
 uv sync
@@ -20,7 +52,7 @@ uv sync
 uv sync --dev
 ```
 
-### Running the Application
+#### Running the API Server
 ```bash
 # Run development server with auto-reload
 uv run uvicorn app.main:app --reload
@@ -32,7 +64,38 @@ uv run uvicorn app.main:app --host 0.0.0.0 --port 8000
 uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
+### Chrome Extension Commands
+
+#### Installation
+```bash
+# 1. Open Chrome and navigate to:
+chrome://extensions/
+
+# 2. Enable "Developer mode" (top right)
+
+# 3. Click "Load unpacked" and select:
+/path/to/pmtools/chrome-extension/
+
+# 4. Pin the extension to toolbar for easy access
+```
+
+#### Development Workflow
+```bash
+# 1. Edit extension files
+# 2. Go to chrome://extensions/
+# 3. Click refresh icon on PM Tools extension
+# 4. Test changes in extension popup
+
+# For background script debugging:
+# chrome://extensions/ → PM Tools → "Inspect views: service worker"
+
+# For popup debugging:
+# Right-click extension icon → "Inspect popup"
+```
+
 ### Testing
+
+#### Backend Tests
 ```bash
 # Run all tests
 uv run pytest
@@ -47,13 +110,27 @@ uv run pytest tests/test_statistics.py
 uv run pytest tests/test_api.py::TestValidateSetupEndpoint::test_valid_setup_request_relative_mde
 ```
 
+#### Chrome Extension Testing
+```bash
+# Manual testing checklist:
+# ✓ Extension loads without errors
+# ✓ Environment auto-detection works
+# ✓ Form validation catches errors
+# ✓ API calls succeed
+# ✓ Results display correctly
+# ✓ Auto-scroll to results works
+# ✓ Export functionality works
+# ✓ Settings save/load properly
+# ✓ Tooltips are clickable and accessible
+```
+
 ### Code Quality
 ```bash
-# Format code
-uv run black .
+# Backend code formatting
+uv run black app/ tests/
 
 # Sort imports
-uv run isort .
+uv run isort app/ tests/
 
 # Lint code
 uv run flake8 app/ tests/
@@ -64,6 +141,7 @@ uv run mypy app/
 
 ## Project Structure
 
+### Backend Structure (`app/`)
 ```
 app/
 ├── main.py                 # FastAPI application entry point
@@ -76,7 +154,7 @@ app/
 │   ├── requests.py        # Pydantic request models
 │   └── responses.py       # Pydantic response models
 ├── statistics/
-│   └── calculations.py    # Statistical calculations
+│   └── calculations.py    # Statistical calculations (TO BE PORTED)
 └── llm/
     ├── base.py            # LLM provider interface
     ├── gemini.py          # Google Gemini provider
@@ -85,19 +163,85 @@ app/
     └── prompts.py         # LLM prompt templates
 ```
 
-## API Endpoints (V1.0)
+### Chrome Extension Structure (`chrome-extension/`)
+```
+chrome-extension/
+├── manifest.json           # Extension configuration (Manifest V3)
+├── popup/                  # Main popup interface
+│   ├── popup.html         # Tabbed UI structure
+│   ├── popup.css          # Styling with CSS variables
+│   └── popup.js           # Form handling and API calls
+├── options/               # Settings page
+│   ├── options.html       # User preferences UI
+│   ├── options.css        # Settings styling
+│   └── options.js         # Preference management
+├── background/            # Service worker
+│   └── service-worker.js  # Background tasks
+├── shared/                # Reusable modules
+│   ├── api-client.js      # API communication
+│   ├── utils.js           # Utilities + TooltipManager
+│   └── constants.js       # Configuration
+└── assets/               # Icons and images
+    └── icons/            # 16x16, 48x48, 128x128
+```
+
+## API Endpoints (Current v1.0)
 
 ### POST /validate/setup
 Analyzes proposed experiment setup for statistical feasibility.
 
-**Key inputs**: hypothesis, baseline conversion rate, MDE (relative or absolute), traffic estimates
-**Key outputs**: sample size calculations, test duration estimates, trade-off matrices, hypothesis assessment
+**Request Structure**:
+```json
+{
+  "hypothesis": "string",
+  "metric": {
+    "name": "string",
+    "baseline_conversion_rate": 0.05
+  },
+  "parameters": {
+    "minimum_detectable_effect_relative": 0.1,  // OR
+    "minimum_detectable_effect_absolute": 0.005,
+    "statistical_power": 0.8,
+    "significance_level": 0.05,
+    "variants": 2
+  },
+  "traffic": {
+    "estimated_daily_users": 10000
+  }
+}
+```
+
+**Response**: Sample size per variant, test duration, trade-off matrix, AI hypothesis assessment
 
 ### POST /analyze/results
 Interprets experiment results with actionable recommendations.
 
-**Key inputs**: experiment context, results data (variants, conversions), optional PM notes
-**Key outputs**: statistical summary, LLM-generated interpretation narrative, recommended next steps
+**Request Structure**:
+```json
+{
+  "context": {
+    "hypothesis": "string",
+    "primary_metric_name": "string",
+    "pm_notes": "optional string"
+  },
+  "results_data": {
+    "variants": [
+      {
+        "name": "Control",
+        "users": 5000,
+        "conversions": 250
+      },
+      {
+        "name": "Treatment",
+        "users": 5000,
+        "conversions": 300
+      }
+    ]
+  }
+}
+```
+
+**Response**: Statistical summary, p-value, confidence intervals, AI interpretation, recommendations
 
 ## Environment Configuration
 
@@ -133,12 +277,62 @@ GEMINI_MODEL=gemini-1.5-flash uv run uvicorn app.main:app --reload
 - **Anthropic**: Claude API integration with fallback support
 - **UV**: Fast Python package manager for dependency management
 
+## Chrome Extension Features
+
+### 🚀 Recent Updates (June 2025)
+
+#### Auto-Scroll to Results
+- Results automatically scroll into view after API responses
+- Prevents "hidden results" confusion
+- Subtle animation with blue border highlight
+- Scroll-to-top buttons (🔝) for easy navigation
+
+#### Simplified Settings
+- Removed technical configuration from UI
+- Environment auto-detection (local/staging/production)
+- Focus on user preferences only
+- Zero configuration setup
+
+#### PM-Friendly Interface
+- Clickable tooltips with smart positioning
+- Helpful, humorous guidance throughout
+- Professional copy with relatable scenarios
+- Full accessibility support (ARIA, keyboard nav)
+
+### Known Issues
+- **AI Follow-up Questions**: Markdown rendering issue where questions appear as run-on text
+- **Pattern**: `**Category:** content **Next Category:** content`
+- **Status**: Partial fix attempted, needs debugging of actual AI response format
+
 ## Key Statistical Concepts
 
-- **MDE (Minimum Detectable Effect)**: Can be specified as relative percentage or absolute value
-- **Trade-off Matrix**: Shows how test duration changes with different MDEs
-- **Statistical Power**: Default 0.80 (80%)
-- **Significance Level**: Default 0.05 (5%)
+### Core Calculations (To Be Ported to Client-Side)
+
+#### Sample Size Calculation
+```python
+# Two-proportion z-test formula
+n = ((z_alpha + z_beta) / effect_size) ** 2
+
+# Where:
+# - z_alpha = Z-score for significance level (e.g., 1.96 for 0.05)
+# - z_beta = Z-score for statistical power (e.g., 0.84 for 0.80)
+# - effect_size = |p2 - p1| / sqrt(p_pooled * (1 - p_pooled))
+```
+
+#### Statistical Significance Testing
+```python
+# Two-proportion z-test
+z_score = (p1 - p2) / sqrt(p_pooled * (1 - p_pooled) * (1/n1 + 1/n2))
+p_value = 2 * (1 - norm.cdf(abs(z_score)))
+```
+
+### Key Concepts
+- **MDE (Minimum Detectable Effect)**: Can be relative (%) or absolute
+- **Trade-off Matrix**: Shows duration vs. different MDEs (50%, 75%, 100%, 125%, 150%)
+- **Statistical Power**: Default 0.80 (80% chance of detecting true effect)
+- **Significance Level**: Default 0.05 (5% false positive rate)
+- **Sample Size**: Users needed per variant for reliable results
+- **Test Duration**: Days needed based on traffic
 
 ## LLM Integration
 
@@ -310,11 +504,103 @@ uv sync --dev
 curl http://localhost:8000/health
 ```
 
-### Streamlit Issues
+### Chrome Extension Issues
 ```bash
-# Restart Streamlit with cache clearing
-uv run streamlit run streamlit_app/main.py --server.headless true
+# Extension not updating after changes
+# 1. Go to chrome://extensions/
+# 2. Click refresh icon on PM Tools extension
+# 3. Clear extension storage if needed:
+#    Right-click icon → Options → Clear all data
 
-# Check API connectivity from Streamlit
-# Look for "API Connected" status in the web interface
+# Debugging markdown rendering (AI responses)
+# 1. Right-click extension → "Inspect popup"
+# 2. Go to Console tab
+# 3. Look for formatTextToHTML logs
+# 4. Check actual AI response format
+
+# API connection issues from extension
+# 1. Check browser console for CORS errors
+# 2. Verify API server allows extension origin
+# 3. Check network tab for failed requests
 ```
+
+## 🎯 Next Development Phase: Standalone Chrome Extension
+
+### Vision
+Create a fully client-side Chrome extension that requires no server setup:
+- All statistical calculations run in JavaScript
+- Direct LLM API calls from browser
+- User provides their own API keys
+- Instant availability for any PM
+
+### Implementation Plan
+
+#### Phase 1: Port Statistical Calculations
+1. **Convert Python to JavaScript**:
+   - `calculate_sample_size()` - Core sample size formula
+   - `calculate_test_duration()` - Duration estimation
+   - `generate_tradeoff_matrix()` - MDE scenarios
+   - `analyze_experiment_results()` - Significance testing
+
+2. **Ensure Accuracy**:
+   - Match Python calculations exactly
+   - Use appropriate JS libraries for statistics
+   - Comprehensive unit tests
+   - Cross-validation with Python results
+
+#### Phase 2: Client-Side LLM Integration
+1. **API Key Management**:
+   - Secure storage in Chrome extension
+   - User-friendly setup flow
+   - Support multiple providers
+
+2. **Direct API Calls**:
+   - Implement Gemini client
+   - Implement Claude client
+   - Handle CORS and browser restrictions
+   - Fallback mechanisms
+
+#### Phase 3: Enhanced UX
+1. **Offline Capabilities**:
+   - Statistical calculations always available
+   - Cache LLM responses when possible
+   - Graceful degradation
+
+2. **Advanced Features**:
+   - Export to various formats
+   - Calculation history
+   - Team sharing capabilities
+
+### Critical Success Factors
+1. **Calculation Accuracy**: Must match server-side exactly
+2. **PM-Friendly UX**: Maintain current ease of use
+3. **Security**: Safe API key handling
+4. **Performance**: Fast calculations in browser
+5. **Reliability**: Work offline for core features
+
+## Development Workflow
+
+### Working on Both Components
+```bash
+# Terminal 1: Run API server
+uv run uvicorn app.main:app --reload
+
+# Terminal 2: Test API
+curl http://localhost:8000/health
+
+# Browser: Load Chrome extension
+# chrome://extensions/ → Reload PM Tools
+
+# Test end-to-end flow
+# 1. Open extension popup
+# 2. Fill validate form
+# 3. Submit and verify results
+# 4. Check both frontend and backend logs
+```
+
+### Best Practices
+1. **Maintain Calculation Accuracy**: Statistical formulas are critical
+2. **PM-First Design**: Every feature should help PMs make better decisions
+3. **Clear Error Messages**: Help PMs understand what went wrong
+4. **Progressive Enhancement**: Core features work without LLM
+5. **Accessibility**: Full keyboard and screen reader support

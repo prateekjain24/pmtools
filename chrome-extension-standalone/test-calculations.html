@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - Statistical Calculations Test</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .test-case {
+      background: #f5f5f5;
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 8px;
+      border-left: 4px solid #007cba;
+    }
+    .result {
+      background: #e8f5e8;
+      padding: 8px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .error {
+      background: #ffe8e8;
+      color: #c00;
+    }
+    .pass {
+      background: #e8f5e8;
+      color: #080;
+    }
+    .fail {
+      background: #ffe8e8;
+      color: #c00;
+    }
+  </style>
+</head>
+<body>
+  <h1>PM Tools Statistical Calculations Test</h1>
+  <p>This page tests the accuracy of our JavaScript statistical implementations.</p>
+  
+  <div id="results"></div>
+  
+  <script src="shared.js"></script>
+  <script src="statistics.js"></script>
+  
+  <script>
+    function runTests() {
+      const results = document.getElementById('results');
+      let passedTests = 0;
+      let totalTests = 0;
+      
+      function test(name, testFunc) {
+        totalTests++;
+        const testDiv = document.createElement('div');
+        testDiv.className = 'test-case';
+        
+        try {
+          const result = testFunc();
+          if (result.pass) {
+            passedTests++;
+            testDiv.innerHTML = `
+              <h3>${name} <span class="pass">✓ PASS</span></h3>
+              <div class="result">${result.message}</div>
+            `;
+          } else {
+            testDiv.innerHTML = `
+              <h3>${name} <span class="fail">✗ FAIL</span></h3>
+              <div class="result error">${result.message}</div>
+            `;
+          }
+        } catch (error) {
+          testDiv.innerHTML = `
+            <h3>${name} <span class="fail">✗ ERROR</span></h3>
+            <div class="result error">Error: ${error.message}</div>
+          `;
+        }
+        
+        results.appendChild(testDiv);
+      }
+      
+      // Test 1: Sample Size Calculation
+      test('Sample Size Calculation - Relative MDE', () => {
+        const result = PMTools.statistics.calculateSampleSize(
+          0.05,    // 5% baseline
+          0.10,    // 10% relative MDE
+          0.8,     // 80% power
+          0.05,    // 5% alpha
+          true     // relative MDE
+        );
+        
+        // Expected result should be around 15,420 users per variant
+        const expected = 15420;
+        const tolerance = 100; // Allow 100 user tolerance
+        
+        const pass = Math.abs(result - expected) <= tolerance;
+        return {
+          pass: pass,
+          message: `Calculated: ${result}, Expected: ~${expected}, Difference: ${Math.abs(result - expected)}`
+        };
+      });
+      
+      // Test 2: Sample Size Calculation - Absolute MDE
+      test('Sample Size Calculation - Absolute MDE', () => {
+        const result = PMTools.statistics.calculateSampleSize(
+          0.05,    // 5% baseline
+          0.005,   // 0.5pp absolute MDE
+          0.8,     // 80% power
+          0.05,    // 5% alpha
+          false    // absolute MDE
+        );
+        
+        // Expected result should be around 15,420 users per variant
+        const expected = 15420;
+        const tolerance = 100;
+        
+        const pass = Math.abs(result - expected) <= tolerance;
+        return {
+          pass: pass,
+          message: `Calculated: ${result}, Expected: ~${expected}, Difference: ${Math.abs(result - expected)}`
+        };
+      });
+      
+      // Test 3: Test Duration
+      test('Test Duration Calculation', () => {
+        const duration = PMTools.statistics.calculateTestDuration(
+          15420,   // sample size per variant
+          10000,   // daily users
+          2        // variants
+        );
+        
+        // Expected: (15420 * 2) / 10000 = 3.084 days
+        const expected = 3.084;
+        const tolerance = 0.01;
+        
+        const pass = Math.abs(duration - expected) <= tolerance;
+        return {
+          pass: pass,
+          message: `Calculated: ${duration.toFixed(3)} days, Expected: ${expected} days`
+        };
+      });
+      
+      // Test 4: Significance Testing
+      test('Statistical Significance Testing', () => {
+        const result = PMTools.statistics.calculateConversionMetrics(
+          5000,  // control users
+          250,   // control conversions (5% rate)
+          5000,  // treatment users
+          275    // treatment conversions (5.5% rate)
+        );
+        
+        // Should detect significance with this sample size
+        const pass = result.pValue < 0.05 && result.isSignificant;
+        return {
+          pass: pass,
+          message: `P-value: ${result.pValue.toFixed(4)}, Significant: ${result.isSignificant}, Relative Lift: ${(result.relativeLift * 100).toFixed(1)}%`
+        };
+      });
+      
+      // Test 5: Normal Distribution Functions
+      test('Normal Distribution CDF', () => {
+        // Test standard normal values
+        const z0 = PMTools.statistics.normalCDF(0);     // Should be ~0.5
+        const z1 = PMTools.statistics.normalCDF(1.96);  // Should be ~0.975
+        const zNeg = PMTools.statistics.normalCDF(-1.96); // Should be ~0.025
+        
+        const pass1 = Math.abs(z0 - 0.5) < 0.001;
+        const pass2 = Math.abs(z1 - 0.975) < 0.001;
+        const pass3 = Math.abs(zNeg - 0.025) < 0.001;
+        
+        const pass = pass1 && pass2 && pass3;
+        return {
+          pass: pass,
+          message: `CDF(0) = ${z0.toFixed(4)}, CDF(1.96) = ${z1.toFixed(4)}, CDF(-1.96) = ${zNeg.toFixed(4)}`
+        };
+      });
+      
+      // Test 6: Input Validation
+      test('Input Validation', () => {
+        const validation = PMTools.statistics.validateExperimentSetup({
+          baselineConversionRate: 0.05,
+          minimumDetectableEffect: 0.10,
+          estimatedDailyUsers: 10000,
+          statisticalPower: 0.8,
+          significanceLevel: 0.05,
+          isRelativeMDE: true
+        });
+        
+        const pass = validation.isValid && validation.errors.length === 0;
+        return {
+          pass: pass,
+          message: `Valid: ${validation.isValid}, Errors: ${validation.errors.length}`
+        };
+      });
+      
+      // Test 7: Trade-off Matrix
+      test('Trade-off Matrix Generation', () => {
+        const matrix = PMTools.statistics.generateTradeoffMatrix(
+          0.05,     // baseline rate
+          10000,    // daily users
+          [0.05, 0.10, 0.15], // MDE values
+          0.8,      // power
+          0.05,     // alpha
+          true,     // relative MDE
+          2         // variants
+        );
+        
+        const pass = matrix.length === 3 && 
+                    matrix[0].sampleSizePerVariant > matrix[1].sampleSizePerVariant &&
+                    matrix[1].sampleSizePerVariant > matrix[2].sampleSizePerVariant;
+        
+        return {
+          pass: pass,
+          message: `Generated ${matrix.length} scenarios. Sample sizes: ${matrix.map(m => m.sampleSizePerVariant).join(', ')}`
+        };
+      });
+      
+      // Summary
+      const summaryDiv = document.createElement('div');
+      summaryDiv.className = 'test-case';
+      summaryDiv.innerHTML = `
+        <h2>Test Summary</h2>
+        <div class="result ${passedTests === totalTests ? 'pass' : 'fail'}">
+          Passed: ${passedTests}/${totalTests} tests
+          ${passedTests === totalTests ? '🎉 All tests passed!' : '❌ Some tests failed'}
+        </div>
+      `;
+      results.appendChild(summaryDiv);
+    }
+    
+    // Run tests when page loads
+    document.addEventListener('DOMContentLoaded', runTests);
+  </script>
+</body>
+</html>

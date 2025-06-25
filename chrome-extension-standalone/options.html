@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo">
+          <img src="assets/icons/icon48.png" alt="PM Tools" class="logo-icon">
+          <h1>PM Tools Settings</h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- API Keys Section -->
+      <section class="settings-section">
+        <h2>🤖 AI Assistant Setup (Optional)</h2>
+        <p class="section-description">
+          Add your own API keys to enable AI-powered insights. Your keys are stored securely in your browser only.
+          <strong>Statistical calculations work without AI.</strong>
+        </p>
+
+        <!-- Gemini Setup -->
+        <div class="api-provider">
+          <div class="provider-header">
+            <h3>Google Gemini (Recommended)</h3>
+            <div class="provider-status" id="geminiStatus">
+              <span class="status-indicator" id="geminiIndicator">❌</span>
+              <span id="geminiStatusText">Not configured</span>
+            </div>
+          </div>
+          
+          <div class="provider-content">
+            <p class="provider-description">
+              Fast and reliable, with a generous free tier. Perfect for most users.
+            </p>
+            
+            <div class="form-group">
+              <label for="geminiKey">
+                API Key
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">
+                  Get your free API key →
+                </a>
+              </label>
+              <div class="input-group">
+                <input 
+                  type="password" 
+                  id="geminiKey" 
+                  placeholder="Enter your Gemini API key"
+                  autocomplete="off"
+                >
+                <button type="button" id="geminiToggle" class="toggle-password" title="Show/Hide">
+                  👁️
+                </button>
+              </div>
+            </div>
+            
+            <div class="form-group" id="geminiModelGroup" style="display: none;">
+              <label for="geminiModel">
+                AI Model
+                <span class="help-text">Choose which model to use for analysis</span>
+              </label>
+              <select id="geminiModel" class="model-select">
+                <option value="">Loading models...</option>
+              </select>
+              <button type="button" id="geminiRefreshModels" class="btn-icon" title="Refresh models">
+                🔄
+              </button>
+            </div>
+            
+            <div class="provider-actions">
+              <button id="geminiTest" class="btn-secondary">🧪 Test Connection</button>
+              <button id="geminiSave" class="btn-primary">💾 Save Key</button>
+              <button id="geminiRemove" class="btn-danger" style="display: none;">🗑️ Remove</button>
+            </div>
+            
+            <div id="geminiMessage" class="message" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- Anthropic Setup -->
+        <div class="api-provider">
+          <div class="provider-header">
+            <h3>Anthropic Claude</h3>
+            <div class="provider-status" id="anthropicStatus">
+              <span class="status-indicator" id="anthropicIndicator">❌</span>
+              <span id="anthropicStatusText">Not configured</span>
+            </div>
+          </div>
+          
+          <div class="provider-content">
+            <p class="provider-description">
+              Advanced reasoning capabilities. Great for complex analysis and detailed insights.
+            </p>
+            
+            <div class="form-group">
+              <label for="anthropicKey">
+                API Key
+                <a href="https://console.anthropic.com/" target="_blank" class="help-link">
+                  Get your API key →
+                </a>
+              </label>
+              <div class="input-group">
+                <input 
+                  type="password" 
+                  id="anthropicKey" 
+                  placeholder="Enter your Claude API key"
+                  autocomplete="off"
+                >
+                <button type="button" id="anthropicToggle" class="toggle-password" title="Show/Hide">
+                  👁️
+                </button>
+              </div>
+            </div>
+            
+            <div class="form-group" id="anthropicModelGroup" style="display: none;">
+              <label for="anthropicModel">
+                AI Model
+                <span class="help-text">Choose which model to use for analysis</span>
+              </label>
+              <select id="anthropicModel" class="model-select">
+                <option value="">Loading models...</option>
+              </select>
+              <button type="button" id="anthropicRefreshModels" class="btn-icon" title="Refresh models">
+                🔄
+              </button>
+            </div>
+            
+            <div class="provider-actions">
+              <button id="anthropicTest" class="btn-secondary">🧪 Test Connection</button>
+              <button id="anthropicSave" class="btn-primary">💾 Save Key</button>
+              <button id="anthropicRemove" class="btn-danger" style="display: none;">🗑️ Remove</button>
+            </div>
+            
+            <div id="anthropicMessage" class="message" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- AI Preferences -->
+        <div class="preferences-section">
+          <h3>🎛️ AI Preferences</h3>
+          
+          <div class="form-group">
+            <label for="preferredProvider">Preferred AI Provider</label>
+            <select id="preferredProvider">
+              <option value="gemini">Google Gemini</option>
+              <option value="anthropic">Anthropic Claude</option>
+            </select>
+            <small class="form-help">
+              Which AI to try first. Will fallback to the other if the first fails.
+            </small>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="enableFallback" checked>
+              <span class="checkbox-custom"></span>
+              Enable AI fallback
+            </label>
+            <small class="form-help">
+              If your preferred AI fails, automatically try the other one.
+            </small>
+          </div>
+        </div>
+      </section>
+
+      <!-- General Settings -->
+      <section class="settings-section">
+        <h2>⚙️ General Settings</h2>
+        
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoSaveForm" checked>
+            <span class="checkbox-custom"></span>
+            Auto-save form data
+          </label>
+          <small class="form-help">
+            Automatically save your form inputs as you type.
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="showTooltips" checked>
+            <span class="checkbox-custom"></span>
+            Show helpful tooltips
+          </label>
+          <small class="form-help">
+            Display explanatory tooltips throughout the interface.
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label for="defaultPower">Default Statistical Power (%)</label>
+          <input 
+            type="number" 
+            id="defaultPower" 
+            value="80" 
+            min="50" 
+            max="99" 
+            step="1"
+          >
+          <small class="form-help">
+            Default power setting for new experiments (80% is standard).
+          </small>
+        </div>
+        
+        <div class="form-group">
+          <label for="defaultAlpha">Default Significance Level (%)</label>
+          <input 
+            type="number" 
+            id="defaultAlpha" 
+            value="5" 
+            min="1" 
+            max="10" 
+            step="0.1"
+          >
+          <small class="form-help">
+            Default alpha level for new experiments (5% is standard).
+          </small>
+        </div>
+      </section>
+
+      <!-- Data Management -->
+      <section class="settings-section">
+        <h2>📊 Data Management</h2>
+        
+        <div class="data-actions">
+          <button id="exportSettings" class="btn-secondary">
+            📥 Export Settings
+          </button>
+          <button id="importSettings" class="btn-secondary">
+            📤 Import Settings
+          </button>
+          <button id="clearData" class="btn-danger">
+            🗑️ Clear All Data
+          </button>
+        </div>
+        
+        <p class="data-warning">
+          <strong>⚠️ Warning:</strong> Clearing data will remove all saved API keys, preferences, and form data. This action cannot be undone.
+        </p>
+      </section>
+
+      <!-- Help & Support -->
+      <section class="settings-section">
+        <h2>❓ Help & Support</h2>
+        
+        <div class="help-grid">
+          <div class="help-item">
+            <h4>📖 Getting Started</h4>
+            <p>Learn how to use PM Tools effectively with our comprehensive guides.</p>
+            <a href="https://github.com/pmtools/docs" target="_blank" class="help-link">
+              View Documentation →
+            </a>
+          </div>
+          
+          <div class="help-item">
+            <h4>🧮 Statistical Methods</h4>
+            <p>Understand the statistical calculations and methodologies we use.</p>
+            <a href="https://github.com/pmtools/methodology" target="_blank" class="help-link">
+              Learn Statistics →
+            </a>
+          </div>
+          
+          <div class="help-item">
+            <h4>🐛 Report Issues</h4>
+            <p>Found a bug or have a feature request? Let us know!</p>
+            <a href="https://github.com/pmtools/issues" target="_blank" class="help-link">
+              Report Issue →
+            </a>
+          </div>
+          
+          <div class="help-item">
+            <h4>💬 Community</h4>
+            <p>Join other PMs discussing A/B testing best practices.</p>
+            <a href="https://discord.gg/pmtools" target="_blank" class="help-link">
+              Join Discord →
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>PM Tools v1.0.0 • Made with ❤️ for Product Managers</p>
+        <div class="footer-links">
+          <a href="https://pmtools.dev/privacy" target="_blank">Privacy</a>
+          <a href="https://pmtools.dev/terms" target="_blank">Terms</a>
+          <a href="https://pmtools.dev" target="_blank">Website</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFile" accept=".json" style="display: none;">
+  </div>
+
+  <!-- Scripts -->
+  <script src="shared.js"></script>
+  <script src="llm-client.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

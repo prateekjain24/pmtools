@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - Model Selection Test</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .test-case {
+      background: #f5f5f5;
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 8px;
+      border-left: 4px solid #007cba;
+    }
+    .result {
+      background: #e8f5e8;
+      padding: 8px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .error {
+      background: #ffe8e8;
+      color: #c00;
+    }
+    .pass {
+      background: #e8f5e8;
+      color: #080;
+    }
+    .fail {
+      background: #ffe8e8;
+      color: #c00;
+    }
+    input, select {
+      width: 300px;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 4px;
+      border: none;
+      border-radius: 4px;
+      background: #007cba;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005a87;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .model-info {
+      background: #f0f8ff;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 4px;
+      border: 1px solid #007cba;
+    }
+    pre {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>PM Tools Model Selection Test</h1>
+  <p>This page tests the dynamic model selection functionality for the BYOK (Bring Your Own Key) feature.</p>
+  
+  <div class="test-case">
+    <h2>1. API Key Storage Test</h2>
+    <div>
+      <label>Gemini API Key: <input type="text" id="geminiKey" placeholder="Enter your Gemini API key"></label><br>
+      <label>Anthropic API Key: <input type="text" id="anthropicKey" placeholder="Enter your Claude API key"></label><br>
+      <button onclick="saveKeys()">Save API Keys</button>
+      <button onclick="clearKeys()">Clear API Keys</button>
+      <button onclick="checkKeyStatus()">Check Key Status</button>
+    </div>
+    <div id="keyStatus" class="result"></div>
+  </div>
+  
+  <div class="test-case">
+    <h2>2. Model Fetching Test</h2>
+    <div>
+      <button onclick="fetchGeminiModels()">Fetch Gemini Models</button>
+      <button onclick="fetchAnthropicModels()">Fetch Anthropic Models</button>
+      <button onclick="clearModelCache()">Clear Model Cache</button>
+    </div>
+    <div id="modelList" class="result"></div>
+  </div>
+  
+  <div class="test-case">
+    <h2>3. Model Selection Test</h2>
+    <div>
+      <label>Select Gemini Model: 
+        <select id="geminiModelSelect" onchange="selectModel('gemini')">
+          <option value="">Loading...</option>
+        </select>
+      </label><br>
+      <label>Select Anthropic Model: 
+        <select id="anthropicModelSelect" onchange="selectModel('anthropic')">
+          <option value="">Loading...</option>
+        </select>
+      </label>
+    </div>
+    <div id="modelSelection" class="result"></div>
+  </div>
+  
+  <div class="test-case">
+    <h2>4. Test Model API Calls</h2>
+    <div>
+      <button onclick="testGeminiCall()">Test Gemini Call</button>
+      <button onclick="testAnthropicCall()">Test Anthropic Call</button>
+    </div>
+    <div id="apiCallResult" class="result"></div>
+  </div>
+  
+  <div class="test-case">
+    <h2>5. Cache Test</h2>
+    <div>
+      <button onclick="testModelCache()">Test Model Cache</button>
+    </div>
+    <div id="cacheResult" class="result"></div>
+  </div>
+  
+  <script src="shared.js"></script>
+  <script src="llm-client.js"></script>
+  
+  <script>
+    async function saveKeys() {
+      const geminiKey = document.getElementById('geminiKey').value.trim();
+      const anthropicKey = document.getElementById('anthropicKey').value.trim();
+      const status = document.getElementById('keyStatus');
+      
+      try {
+        if (geminiKey) {
+          await PMTools.llm.saveApiKey('gemini', geminiKey);
+        }
+        if (anthropicKey) {
+          await PMTools.llm.saveApiKey('anthropic', anthropicKey);
+        }
+        
+        status.innerHTML = '<span class="pass">✅ API keys saved successfully!</span>';
+        await checkKeyStatus();
+        await loadModels();
+      } catch (error) {
+        status.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function clearKeys() {
+      const status = document.getElementById('keyStatus');
+      
+      try {
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.API_KEY_GEMINI);
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.API_KEY_ANTHROPIC);
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.SELECTED_MODEL_GEMINI);
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.SELECTED_MODEL_ANTHROPIC);
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.MODEL_CACHE_GEMINI);
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.MODEL_CACHE_ANTHROPIC);
+        
+        status.innerHTML = '<span class="pass">✅ All keys and caches cleared!</span>';
+        document.getElementById('geminiKey').value = '';
+        document.getElementById('anthropicKey').value = '';
+        await checkKeyStatus();
+      } catch (error) {
+        status.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function checkKeyStatus() {
+      const status = document.getElementById('keyStatus');
+      
+      try {
+        const apiStatus = await PMTools.llm.getApiKeyStatus();
+        status.innerHTML = `
+          <div class="model-info">
+            <strong>API Key Status:</strong><br>
+            Gemini: ${apiStatus.hasGemini ? '✅ Configured' : '❌ Not configured'}<br>
+            Anthropic: ${apiStatus.hasAnthropic ? '✅ Configured' : '❌ Not configured'}
+          </div>
+        `;
+      } catch (error) {
+        status.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function fetchGeminiModels() {
+      const result = document.getElementById('modelList');
+      
+      try {
+        result.innerHTML = 'Fetching Gemini models...';
+        const models = await PMTools.llm.getAvailableModels('gemini');
+        
+        if (models.length === 0) {
+          result.innerHTML = '<span class="fail">No models available (check API key)</span>';
+          return;
+        }
+        
+        result.innerHTML = `
+          <div class="model-info">
+            <strong>Gemini Models (${models.length}):</strong>
+            <pre>${JSON.stringify(models, null, 2)}</pre>
+          </div>
+        `;
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function fetchAnthropicModels() {
+      const result = document.getElementById('modelList');
+      
+      try {
+        result.innerHTML = 'Fetching Anthropic models...';
+        const models = await PMTools.llm.getAvailableModels('anthropic');
+        
+        if (models.length === 0) {
+          result.innerHTML = '<span class="fail">No models available (check API key)</span>';
+          return;
+        }
+        
+        result.innerHTML = `
+          <div class="model-info">
+            <strong>Anthropic Models (${models.length}):</strong>
+            <pre>${JSON.stringify(models, null, 2)}</pre>
+          </div>
+        `;
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function clearModelCache() {
+      const result = document.getElementById('modelList');
+      
+      try {
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.MODEL_CACHE_GEMINI);
+        await PMTools.utils.removeStorage(PMTools.STORAGE_KEYS.MODEL_CACHE_ANTHROPIC);
+        result.innerHTML = '<span class="pass">✅ Model cache cleared!</span>';
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function loadModels() {
+      try {
+        // Load Gemini models
+        const geminiModels = await PMTools.llm.getAvailableModels('gemini');
+        const geminiSelect = document.getElementById('geminiModelSelect');
+        const selectedGemini = await PMTools.llm.getSelectedModel('gemini');
+        
+        if (geminiModels.length > 0) {
+          geminiSelect.innerHTML = geminiModels.map(model => 
+            `<option value="${model.id}" ${model.id === selectedGemini ? 'selected' : ''}>
+              ${model.displayName} - ${model.description}
+            </option>`
+          ).join('');
+        } else {
+          geminiSelect.innerHTML = '<option value="">No API key configured</option>';
+        }
+        
+        // Load Anthropic models
+        const anthropicModels = await PMTools.llm.getAvailableModels('anthropic');
+        const anthropicSelect = document.getElementById('anthropicModelSelect');
+        const selectedAnthropic = await PMTools.llm.getSelectedModel('anthropic');
+        
+        if (anthropicModels.length > 0) {
+          anthropicSelect.innerHTML = anthropicModels.map(model => 
+            `<option value="${model.id}" ${model.id === selectedAnthropic ? 'selected' : ''}>
+              ${model.displayName} - ${model.description}
+            </option>`
+          ).join('');
+        } else {
+          anthropicSelect.innerHTML = '<option value="">No API key configured</option>';
+        }
+      } catch (error) {
+        console.error('Error loading models:', error);
+      }
+    }
+    
+    async function selectModel(provider) {
+      const result = document.getElementById('modelSelection');
+      const select = document.getElementById(`${provider}ModelSelect`);
+      const modelId = select.value;
+      
+      if (!modelId) return;
+      
+      try {
+        await PMTools.llm.saveSelectedModel(provider, modelId);
+        result.innerHTML = `<span class="pass">✅ ${provider} model set to: ${modelId}</span>`;
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function testGeminiCall() {
+      const result = document.getElementById('apiCallResult');
+      
+      try {
+        result.innerHTML = 'Testing Gemini API call...';
+        const response = await PMTools.llm.callProvider('gemini', 'Say "Hello from Gemini!" and nothing else.');
+        result.innerHTML = `
+          <div class="model-info">
+            <strong>Gemini Response:</strong><br>
+            ${response}
+          </div>
+        `;
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function testAnthropicCall() {
+      const result = document.getElementById('apiCallResult');
+      
+      try {
+        result.innerHTML = 'Testing Anthropic API call...';
+        const response = await PMTools.llm.callProvider('anthropic', 'Say "Hello from Claude!" and nothing else.');
+        result.innerHTML = `
+          <div class="model-info">
+            <strong>Anthropic Response:</strong><br>
+            ${response}
+          </div>
+        `;
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    async function testModelCache() {
+      const result = document.getElementById('cacheResult');
+      
+      try {
+        // Test cache for both providers
+        const geminiCache = await PMTools.utils.getStorage(PMTools.STORAGE_KEYS.MODEL_CACHE_GEMINI);
+        const anthropicCache = await PMTools.utils.getStorage(PMTools.STORAGE_KEYS.MODEL_CACHE_ANTHROPIC);
+        
+        result.innerHTML = `
+          <div class="model-info">
+            <strong>Cache Status:</strong><br>
+            <br><strong>Gemini Cache:</strong>
+            ${geminiCache ? `
+              <br>- Models: ${geminiCache.models?.length || 0}
+              <br>- Cached at: ${new Date(geminiCache.timestamp).toLocaleString()}
+              <br>- Age: ${Math.round((Date.now() - geminiCache.timestamp) / 1000 / 60)} minutes
+            ` : '<br>- No cache'}
+            <br><br><strong>Anthropic Cache:</strong>
+            ${anthropicCache ? `
+              <br>- Models: ${anthropicCache.models?.length || 0}
+              <br>- Cached at: ${new Date(anthropicCache.timestamp).toLocaleString()}
+              <br>- Age: ${Math.round((Date.now() - anthropicCache.timestamp) / 1000 / 60)} minutes
+            ` : '<br>- No cache'}
+          </div>
+        `;
+      } catch (error) {
+        result.innerHTML = `<span class="fail">❌ Error: ${error.message}</span>`;
+      }
+    }
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await checkKeyStatus();
+      await loadModels();
+    });
+  </script>
+</body>
+</html>

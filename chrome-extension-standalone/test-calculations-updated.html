@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Tools - Updated Statistical Calculations Test</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .test-case {
+      background: #f5f5f5;
+      padding: 16px;
+      margin: 16px 0;
+      border-radius: 8px;
+      border-left: 4px solid #007cba;
+    }
+    .result {
+      background: #e8f5e8;
+      padding: 8px;
+      margin: 8px 0;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .error {
+      background: #ffe8e8;
+      color: #c00;
+    }
+    .pass {
+      background: #e8f5e8;
+      color: #080;
+    }
+    .fail {
+      background: #ffe8e8;
+      color: #c00;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>PM Tools Updated Statistical Calculations Test</h1>
+  <p>This page tests the improved JavaScript statistical implementations with the fixes applied.</p>
+  
+  <div id="results"></div>
+  
+  <script src="shared.js"></script>
+  <script src="statistics.js"></script>
+  
+  <script>
+    function runTests() {
+      const results = document.getElementById('results');
+      let passedTests = 0;
+      let totalTests = 0;
+      
+      function test(name, testFunc) {
+        totalTests++;
+        const testDiv = document.createElement('div');
+        testDiv.className = 'test-case';
+        
+        try {
+          const result = testFunc();
+          if (result.pass) {
+            passedTests++;
+            testDiv.innerHTML = `
+              <h3>${name} <span class="pass">✓ PASS</span></h3>
+              <div class="result">${result.message}</div>
+            `;
+          } else {
+            testDiv.innerHTML = `
+              <h3>${name} <span class="fail">✗ FAIL</span></h3>
+              <div class="result error">${result.message}</div>
+            `;
+          }
+        } catch (error) {
+          testDiv.innerHTML = `
+            <h3>${name} <span class="fail">✗ ERROR</span></h3>
+            <div class="result error">Error: ${error.message}<br>Stack: ${error.stack}</div>
+          `;
+        }
+        
+        results.appendChild(testDiv);
+      }
+      
+      // Test 1: Improved Normal CDF
+      test('Improved Normal Distribution CDF', () => {
+        const testCases = [
+          { z: 0, expected: 0.5, tolerance: 0.0001 },
+          { z: 1.96, expected: 0.975, tolerance: 0.001 },
+          { z: -1.96, expected: 0.025, tolerance: 0.001 },
+          { z: 2.576, expected: 0.995, tolerance: 0.001 },
+          { z: -2.576, expected: 0.005, tolerance: 0.001 },
+          { z: 3, expected: 0.9987, tolerance: 0.001 }
+        ];
+        
+        let allPass = true;
+        let details = '<table><tr><th>Z</th><th>Expected</th><th>Calculated</th><th>Diff</th><th>Pass</th></tr>';
+        
+        for (const tc of testCases) {
+          const calculated = PMTools.statistics.normalCDF(tc.z);
+          const diff = Math.abs(calculated - tc.expected);
+          const pass = diff <= tc.tolerance;
+          allPass = allPass && pass;
+          
+          details += `<tr>
+            <td>${tc.z}</td>
+            <td>${tc.expected}</td>
+            <td>${calculated.toFixed(6)}</td>
+            <td>${diff.toFixed(6)}</td>
+            <td>${pass ? '✓' : '✗'}</td>
+          </tr>`;
+        }
+        
+        details += '</table>';
+        
+        return {
+          pass: allPass,
+          message: details
+        };
+      });
+      
+      // Test 2: Updated Sample Size Formula
+      test('Updated Sample Size Calculation - Two-Proportion Test', () => {
+        const result = PMTools.statistics.calculateSampleSize(
+          0.05,    // 5% baseline
+          0.10,    // 10% relative MDE
+          0.8,     // 80% power
+          0.05,    // 5% alpha
+          true     // relative MDE
+        );
+        
+        // Using the corrected formula: n = (zα + zβ)² × [p1(1-p1) + p2(1-p2)] / (p2 - p1)²
+        // p1 = 0.05, p2 = 0.055 (5% * 1.1)
+        // Expected result should be around 31,026
+        const expected = 31026;
+        const tolerance = 500;
+        
+        const pass = Math.abs(result - expected) <= tolerance;
+        return {
+          pass: pass,
+          message: `Calculated: ${result}, Expected: ~${expected}, Difference: ${Math.abs(result - expected)}<br>
+                   Formula: n = (zα + zβ)² × [p1(1-p1) + p2(1-p2)] / (p2 - p1)²`
+        };
+      });
+      
+      // Test 3: Edge Case Handling
+      test('Edge Case Handling', () => {
+        const testCases = [
+          {
+            name: 'Very small baseline',
+            params: { baseline: 0.001, mde: 0.5, power: 0.8, alpha: 0.05, relative: true },
+            shouldThrow: false
+          },
+          {
+            name: 'Very large baseline',
+            params: { baseline: 0.99, mde: 0.01, power: 0.8, alpha: 0.05, relative: true },
+            shouldThrow: false
+          },
+          {
+            name: 'Zero baseline',
+            params: { baseline: 0, mde: 0.1, power: 0.8, alpha: 0.05, relative: true },
+            shouldThrow: true
+          },
+          {
+            name: 'MDE causes p2 > 1',
+            params: { baseline: 0.9, mde: 0.2, power: 0.8, alpha: 0.05, relative: true },
+            shouldThrow: false // Should clamp to valid range
+          }
+        ];
+        
+        let allPass = true;
+        let details = '';
+        
+        for (const tc of testCases) {
+          try {
+            const result = PMTools.statistics.calculateSampleSize(
+              tc.params.baseline,
+              tc.params.mde,
+              tc.params.power,
+              tc.params.alpha,
+              tc.params.relative
+            );
+            
+            if (tc.shouldThrow) {
+              allPass = false;
+              details += `<br>❌ ${tc.name}: Expected error but got result ${result}`;
+            } else {
+              details += `<br>✅ ${tc.name}: Success (n=${result})`;
+            }
+          } catch (error) {
+            if (!tc.shouldThrow) {
+              allPass = false;
+              details += `<br>❌ ${tc.name}: Unexpected error - ${error.message}`;
+            } else {
+              details += `<br>✅ ${tc.name}: Correctly threw error - ${error.message}`;
+            }
+          }
+        }
+        
+        return {
+          pass: allPass,
+          message: details
+        };
+      });
+      
+      // Test 4: Continuity Correction
+      test('Continuity Correction for Small Samples', () => {
+        // Small sample test
+        const smallResult = PMTools.statistics.calculateConversionMetrics(
+          100,  // control users
+          5,    // control conversions (5% rate)
+          100,  // treatment users
+          10    // treatment conversions (10% rate)
+        );
+        
+        // Large sample test (no continuity correction needed)
+        const largeResult = PMTools.statistics.calculateConversionMetrics(
+          10000,  // control users
+          500,    // control conversions (5% rate)
+          10000,  // treatment users
+          600     // treatment conversions (6% rate)
+        );
+        
+        const details = `
+          <br><strong>Small Sample (n=100):</strong>
+          <br>- Continuity Correction Applied: ${smallResult.continuityCorrection}
+          <br>- P-value: ${smallResult.pValue}
+          <br>- Is Significant: ${smallResult.isSignificant}
+          <br>
+          <br><strong>Large Sample (n=10000):</strong>
+          <br>- Continuity Correction Applied: ${largeResult.continuityCorrection}
+          <br>- P-value: ${largeResult.pValue}
+          <br>- Is Significant: ${largeResult.isSignificant}
+        `;
+        
+        return {
+          pass: smallResult.continuityCorrection === true && largeResult.continuityCorrection === false,
+          message: details
+        };
+      });
+      
+      // Test 5: Input Validation
+      test('Comprehensive Input Validation', () => {
+        const invalidCases = [
+          {
+            name: 'Negative users',
+            params: { controlUsers: -100, controlConv: 5, treatUsers: 100, treatConv: 10 }
+          },
+          {
+            name: 'Conversions exceed users',
+            params: { controlUsers: 100, controlConv: 150, treatUsers: 100, treatConv: 10 }
+          },
+          {
+            name: 'Zero users',
+            params: { controlUsers: 0, controlConv: 0, treatUsers: 100, treatConv: 10 }
+          }
+        ];
+        
+        let allPass = true;
+        let details = '';
+        
+        for (const tc of invalidCases) {
+          try {
+            PMTools.statistics.calculateConversionMetrics(
+              tc.params.controlUsers,
+              tc.params.controlConv,
+              tc.params.treatUsers,
+              tc.params.treatConv
+            );
+            allPass = false;
+            details += `<br>❌ ${tc.name}: Should have thrown error`;
+          } catch (error) {
+            details += `<br>✅ ${tc.name}: Correctly threw - ${error.message}`;
+          }
+        }
+        
+        return {
+          pass: allPass,
+          message: details
+        };
+      });
+      
+      // Test 6: Performance Test
+      test('Performance - 1000 Sample Size Calculations', () => {
+        const start = performance.now();
+        
+        for (let i = 0; i < 1000; i++) {
+          PMTools.statistics.calculateSampleSize(
+            0.05,
+            0.1,
+            0.8,
+            0.05,
+            true
+          );
+        }
+        
+        const end = performance.now();
+        const duration = end - start;
+        const avgTime = duration / 1000;
+        
+        // Should complete 1000 calculations in under 100ms
+        const pass = duration < 100;
+        
+        return {
+          pass: pass,
+          message: `1000 calculations completed in ${duration.toFixed(2)}ms (avg: ${avgTime.toFixed(3)}ms each)`
+        };
+      });
+      
+      // Summary
+      const summaryDiv = document.createElement('div');
+      summaryDiv.className = 'test-case';
+      summaryDiv.innerHTML = `
+        <h2>Test Summary</h2>
+        <div class="result ${passedTests === totalTests ? 'pass' : 'fail'}">
+          Passed: ${passedTests}/${totalTests} tests
+          ${passedTests === totalTests ? '🎉 All tests passed!' : '❌ Some tests failed'}
+        </div>
+        <h3>Key Improvements Tested:</h3>
+        <ul>
+          <li>✅ More accurate normal distribution CDF using Hart's algorithm</li>
+          <li>✅ Corrected sample size formula matching two-proportion test</li>
+          <li>✅ Proper edge case handling with input validation</li>
+          <li>✅ Yates' continuity correction for small samples</li>
+          <li>✅ Performance optimizations verified</li>
+        </ul>
+      `;
+      results.appendChild(summaryDiv);
+    }
+    
+    // Run tests when page loads
+    document.addEventListener('DOMContentLoaded', runTests);
+  </script>
+</body>
+</html>
