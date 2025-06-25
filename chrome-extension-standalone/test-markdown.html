@@ -78,29 +78,107 @@
         </div>
     </div>
     
+    <div class="test-case">
+        <h2>Test Case 4: Broken Bold Patterns (User's Example)</h2>
+        <div class="input" id="input4">Clarity Score:
+3/10** It's got the right spirit, but it's very vague. "More prominent" can mean a hundred different things, and "clicks" could refer to anything on the page. We need to get much more specific to make it testable and measurable.
+---
+Strengths:
+**
+
+Identifies a specific element: You've pinpointed the "CTA" (Call to Action), which is a crucial part of any user journey.
+Clear intent: You want to increase user engagement with that CTA. This is a common and valuable goal for optimization.
+
+Focus on action: You're looking to drive a specific user action ("clicks").
+---
+
+Areas for Improvement:
+**
+
+What could go wrong with this test?</div>
+        <div class="output ai-insight">
+            <div class="insight-content" id="output4"></div>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <h2>Test Case 5: Edge Cases</h2>
+        <div class="input" id="input5">Header with trailing bold:**
+
+Content after orphaned bold marker
+
+Another section:**
+**
+This is the actual content
+
+Mixed patterns:
+- Item with 3/10** rating
+- Another item**
+- Normal item
+
+---
+
+Horizontal rule above
+
+**Bold start** and normal end
+
+Incomplete at end of line**</div>
+        <div class="output ai-insight">
+            <div class="insight-content" id="output5"></div>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <h2>Test Case 6: Multi-line Bold Sections</h2>
+        <div class="input" id="input6">Business Considerations:**
+
+Estimated revenue/cost impact if successful:
+Let's assume:
+Average Order Value (AOV): $75
+Current PDP visitors per month: 500,000
+Current "Add to Cart" CTR: 10% (50,000 clicks)
+
+Resources needed:**
+Design: 1-2 days
+Engineering: 3-5 days
+Product: 1-2 days
+
+---
+
+Key stakeholders:**
+
+Design Lead: For UX/UI review
+Engineering Lead: For technical feasibility</div>
+        <div class="output ai-insight">
+            <div class="insight-content" id="output6"></div>
+        </div>
+    </div>
+    
     <script src="shared.js"></script>
     <script>
         // Test the markdown parsing
         document.addEventListener('DOMContentLoaded', function() {
-            // Test case 1
-            const input1 = document.getElementById('input1').textContent;
-            const output1 = PMTools.utils.formatLLMResponse(input1);
-            document.getElementById('output1').innerHTML = output1;
+            // Test all cases
+            for (let i = 1; i <= 6; i++) {
+                const input = document.getElementById(`input${i}`).textContent;
+                const output = PMTools.utils.formatLLMResponse(input);
+                document.getElementById(`output${i}`).innerHTML = output;
+                
+                // Log results for debugging
+                console.log(`Test ${i} Input:`, input);
+                console.log(`Test ${i} Output:`, output);
+                console.log('---');
+            }
             
-            // Test case 2
-            const input2 = document.getElementById('input2').textContent;
-            const output2 = PMTools.utils.formatLLMResponse(input2);
-            document.getElementById('output2').innerHTML = output2;
-            
-            // Test case 3
-            const input3 = document.getElementById('input3').textContent;
-            const output3 = PMTools.utils.formatLLMResponse(input3);
-            document.getElementById('output3').innerHTML = output3;
-            
-            // Log results for debugging
-            console.log('Test 1 Output:', output1);
-            console.log('Test 2 Output:', output2);
-            console.log('Test 3 Output:', output3);
+            // Additional test for real-time updates
+            console.log('All tests completed. Check the visual output above.');
+            console.log('Expected results:');
+            console.log('- Test 1: Standard bold/italic should work');
+            console.log('- Test 2: Headers and lists should render properly');
+            console.log('- Test 3: Complex nested formatting');
+            console.log('- Test 4: User\'s broken patterns should be fixed');
+            console.log('- Test 5: All edge cases should be handled');
+            console.log('- Test 6: Multi-line bold sections should work');
         });
     </script>
 </body>

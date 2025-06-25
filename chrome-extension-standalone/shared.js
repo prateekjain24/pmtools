@@ -111,18 +111,37 @@ PMTools.utils = {
     // First, escape HTML to prevent XSS
     let formatted = this.sanitizeHTML(text);
     
+    // PRE-PROCESSING: Fix common LLM response patterns
+    
+    // 1. Fix incomplete bold markers at the end of lines (e.g., "3/10**")
+    formatted = formatted.replace(/([^\*\s]+)\*\*(\s|$)/gm, '**$1**$2');
+    
+    // 2. Fix headers with trailing bold markers (e.g., "Strengths:**")
+    formatted = formatted.replace(/^([^:\n]+):\*\*\s*$/gm, '**$1:**');
+    
+    // 3. Fix orphaned bold markers on their own line after headers
+    formatted = formatted.replace(/^([^:\n]+):\s*\n\*\*\s*$/gm, '**$1:**\n');
+    
+    // 4. Convert horizontal rules (---) to HTML
+    formatted = formatted.replace(/^---+\s*$/gm, '<hr>');
+    
+    // 5. Fix multi-line bold sections where content starts on the next line
+    // Pattern: "Header:**\n\nContent" -> "Header:\n\n**Content**"
+    formatted = formatted.replace(/^([^:\n]+):\*\*\s*\n\n([^*\n]+)$/gm, '$1:\n\n**$2**');
+    
+    // STANDARD MARKDOWN PROCESSING
+    
     // Convert headers (###, ####, etc.) - must be done before other replacements
     formatted = formatted.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
       const level = hashes.length;
       return `<h${level}>${content}</h${level}>`;
     });
     
-    // Convert bold and italic text
-    // First handle bold (double asterisks) - must be done before italic
+    // Convert bold text - improved to handle edge cases
+    // First, handle complete bold patterns
     formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     
-    // Then handle italic (single asterisks) - using negative lookbehind/ahead to avoid matching bold
-    // This regex ensures we only match single asterisks not part of double asterisks
+    // Then handle italic (single asterisks) - using negative lookbehind/ahead
     formatted = formatted.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
     
     // Convert `code` to <code>
@@ -137,6 +156,22 @@ PMTools.utils = {
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      
+      // Skip horizontal rules
+      if (line.trim() === '<hr>') {
+        // Close any open lists first
+        if (inOrderedList) {
+          processedLines.push('<ol>' + listItems.join('') + '</ol>');
+          listItems = [];
+          inOrderedList = false;
+        } else if (inUnorderedList) {
+          processedLines.push('<ul>' + listItems.join('') + '</ul>');
+          listItems = [];
+          inUnorderedList = false;
+        }
+        processedLines.push(line);
+        continue;
+      }
       
       // Check for numbered list item
       const orderedMatch = line.match(/^(\d+)\.\s+(.+)$/);
@@ -191,7 +226,7 @@ PMTools.utils = {
     const blocks = formatted.split(/\n\n+/);
     formatted = blocks.map(block => {
       // Don't wrap if it's already a block element
-      if (block.match(/^<(?:h[1-6]|ul|ol|p)\b/)) {
+      if (block.match(/^<(?:h[1-6]|ul|ol|p|hr)\b/)) {
         return block;
       }
       // Replace single line breaks with <br> within paragraphs

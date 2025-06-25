@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test LLM Response Flow</title>
+    <link rel="stylesheet" href="popup.css">
+    <style>
+        body {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .raw-response {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test LLM Response Flow</h1>
+    
+    <div class="test-section">
+        <h2>Simulate Real LLM Response</h2>
+        <button onclick="testHypothesisAnalysis()">Test Hypothesis Analysis</button>
+        <button onclick="testResultsInterpretation()">Test Results Interpretation</button>
+        <button onclick="testBrokenFormat()">Test Broken Format (User's Example)</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Raw LLM Response</h2>
+        <div class="raw-response" id="rawResponse"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Parsed Sections</h2>
+        <div id="parsedSections"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Final Rendered Output</h2>
+        <div class="ai-insight">
+            <div id="renderedOutput"></div>
+        </div>
+    </div>
+    
+    <script src="shared.js"></script>
+    <script src="llm-client.js"></script>
+    <script>
+        // Test hypothesis analysis response
+        function testHypothesisAnalysis() {
+            const mockResponse = `**1. Clarity Score (1-10):** 7/10
+
+**2. What's Working Well:** 
+You've identified a clear element (CTA) and a measurable outcome (clicks). This is a good foundation for an A/B test.
+
+**3. Key Risks & Gaps:**
+- "More prominent" is too vague - could mean bigger, different color, animation, etc.
+- No specific user segment mentioned
+- Missing expected impact percentage
+- No mention of which page or CTA specifically
+
+**4. Improved Hypothesis:** 
+"We believe that increasing the size and changing the color of the 'Add to Cart' button on product pages from gray to orange for mobile users will increase the click-through rate by 15% within 2 weeks."
+
+**5. Business Considerations:**
+Estimated revenue impact: If CTR increases by 15% on 100k monthly mobile visitors with $50 AOV, that's ~$75k additional revenue/month.
+Resources needed: 2 design days, 3 engineering days, 1 QA day
+Key stakeholders: Design lead, Mobile team lead, Revenue team
+Aligns with Q4 goal to improve mobile conversion
+
+**6. Success Metrics to Track:**
+- Primary: Add to Cart click-through rate
+- Secondary: Cart abandonment rate, checkout completion rate
+- Guardrail: Page load time, bounce rate`;
+            
+            testResponse(mockResponse, 'hypothesis');
+        }
+        
+        // Test results interpretation response
+        function testResultsInterpretation() {
+            const mockResponse = `**1. Bottom Line:** 
+The treatment showed a 12% relative lift in conversion rate, which is statistically significant (p=0.023). This represents approximately 600 additional conversions per month.
+
+**2. Ship Decision:**
+YES - Ship this change. The results are both statistically and practically significant.
+Key reasons:
+- Clear positive impact on primary metric
+- No negative impact on secondary metrics observed
+- ROI justifies implementation effort
+
+**3. Practical Significance:**
+This is absolutely meaningful for the business. 600 extra conversions at $75 AOV = $45k additional monthly revenue. The improvement more than justifies the week of development time invested.
+
+**4. Risk Assessment:**
+- Low risk of negative impact based on test results
+- Consider gradual rollout to monitor at scale
+- Desktop users might have different response - consider follow-up test
+- No technical debt concerns with this implementation
+
+**5. Immediate Next Steps:**
+1. Schedule ship review with VP Product by EOW
+2. Prepare rollout plan with engineering for next sprint
+3. Create monitoring dashboard for post-launch metrics
+
+**6. Strategic Questions:**
+- Why did mobile users respond better than desktop users?
+- Could we apply similar prominence changes to other CTAs?
+- What user segments showed the strongest response?`;
+            
+            testResponse(mockResponse, 'results');
+        }
+        
+        // Test broken format from user's example
+        function testBrokenFormat() {
+            const mockResponse = `Clarity Score:
+3/10** It's got the right spirit, but it's very vague. "More prominent" can mean a hundred different things, and "clicks" could refer to anything on the page. We need to get much more specific to make it testable and measurable.
+---
+Strengths:
+**
+
+Identifies a specific element: You've pinpointed the "CTA" (Call to Action), which is a crucial part of any user journey.
+Clear intent: You want to increase user engagement with that CTA. This is a common and valuable goal for optimization.
+
+Focus on action: You're looking to drive a specific user action ("clicks").
+---
+
+Areas for Improvement:
+**
+
+What could go wrong with this test?
+Vague definition of "prominent": If the design team makes it "more prominent" in a way that's not what you intended, the test might fail.
+
+Business Considerations:**
+
+Estimated revenue/cost impact if successful:
+Average Order Value: $75
+Current visitors: 500,000/month
+
+Resources needed:**
+Design: 1-2 days
+Engineering: 3-5 days`;
+            
+            testResponse(mockResponse, 'broken');
+        }
+        
+        // Process and display response
+        function testResponse(response, type) {
+            // Show raw response
+            document.getElementById('rawResponse').textContent = response;
+            
+            // Parse sections based on type
+            let parsed;
+            if (type === 'hypothesis') {
+                parsed = PMTools.llm.parseHypothesisAnalysis(response);
+                displayParsedSections(parsed.analysis);
+                displayRenderedHypothesis(parsed.analysis);
+            } else if (type === 'results') {
+                parsed = PMTools.llm.parseResultsInterpretation(response);
+                displayParsedSections(parsed.interpretation);
+                displayRenderedResults(parsed.interpretation);
+            } else {
+                // For broken format, just show formatted output
+                const formatted = PMTools.utils.formatLLMResponse(response);
+                document.getElementById('renderedOutput').innerHTML = formatted;
+                document.getElementById('parsedSections').innerHTML = '<p>Direct formatting applied (no section parsing)</p>';
+            }
+        }
+        
+        // Display parsed sections
+        function displayParsedSections(sections) {
+            let html = '<h3>Extracted Sections:</h3>';
+            for (const [key, value] of Object.entries(sections)) {
+                html += `<div style="margin: 10px 0;">
+                    <strong>${key}:</strong>
+                    <div style="background: #f0f0f0; padding: 8px; margin-top: 4px;">
+                        <pre style="white-space: pre-wrap; margin: 0;">${value}</pre>
+                    </div>
+                </div>`;
+            }
+            document.getElementById('parsedSections').innerHTML = html;
+        }
+        
+        // Display rendered hypothesis analysis
+        function displayRenderedHypothesis(analysis) {
+            const html = `
+                <h3>🔬 AI Analysis of Your Hypothesis</h3>
+                <div class="insight-section">
+                    <div class="insight-label">Clarity Score</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.clarityScore)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">What's Working Well</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.strengths)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Areas for Improvement</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.improvements)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Improved Version</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.improvedVersion)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Success Metrics</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.successMetrics)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Business Considerations</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.businessConsiderations)}</div>
+                </div>`;
+            document.getElementById('renderedOutput').innerHTML = html;
+        }
+        
+        // Display rendered results interpretation
+        function displayRenderedResults(interpretation) {
+            const html = `
+                <h3>🎯 AI Interpretation</h3>
+                <div class="insight-section">
+                    <div class="insight-label">Key Takeaway</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.keyTakeaway)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Ship Recommendation</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.recommendation)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Practical Significance</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.practicalSignificance)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Risk Assessment</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.riskAssessment)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Next Steps</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.nextSteps)}</div>
+                </div>
+                <div class="insight-section">
+                    <div class="insight-label">Follow-up Questions</div>
+                    <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.followUpQuestions)}</div>
+                </div>`;
+            document.getElementById('renderedOutput').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

@@ -149,6 +149,9 @@ uv run pytest tests/test_api.py::TestValidateSetupEndpoint::test_valid_setup_req
 # Test pages available:
 # - test-calculations-updated.html (statistical tests)
 # - test-model-selection.html (BYOK model selection)
+# - test-markdown.html (markdown parsing edge cases)
+# - test-llm-flow.html (complete LLM response flow)
+# - test-gemini-api.html (direct Gemini API testing)
 ```
 
 ### Code Quality
@@ -577,17 +580,30 @@ curl http://localhost:8000/health
 #   - Increased maxOutputTokens: 4096 (was 1024)
 #   - Handle MAX_TOKENS finish reason as normal completion
 
-# LLM output not rendering properly
+# LLM output not rendering properly (Fixed December 2024)
 # Symptoms: Raw markdown like **text** and *text* showing
-# Cause: Inadequate markdown parsing, conflicts between bold/italic
-# Solution: Rewritten formatLLMResponse() with proper parsing
+# Root Causes: 
+#   - LLM generating non-standard markdown patterns
+#   - Incomplete bold markers (e.g., "3/10**")
+#   - Headers with trailing bold markers (e.g., "Strengths:**")
+#   - Orphaned bold markers on separate lines
+# Solution: Enhanced formatLLMResponse() with preprocessing
+# New Features:
+#   - Pre-processing step to fix LLM-specific patterns
+#   - Handles incomplete bold markers at line ends
+#   - Fixes headers with trailing bold markers
+#   - Supports horizontal rules (---) 
+#   - Multi-line bold section handling
+#   - Improved list processing with proper nesting
 # Supports:
-#   - Headers: ### Title
-#   - Bold: **text**
-#   - Italic: *text*
+#   - Headers: # to ###### 
+#   - Bold: **text** (including edge cases)
+#   - Italic: *text* (with proper isolation from bold)
 #   - Lists: *, -, • for bullets; 1. 2. for numbered
 #   - Code: `inline code`
-#   - Proper paragraph handling
+#   - Horizontal rules: ---
+#   - Mixed formatting within lists
+#   - Proper paragraph and line break handling
 
 # Model selection not working
 # 1. Check API key is valid in settings
@@ -747,9 +763,23 @@ The extension includes test files for debugging:
 
 #### test-markdown.html
 - Tests markdown parsing functionality
-- Includes complex test cases
+- Includes complex test cases for all edge cases
 - Visual verification of formatting
 - Console logging for debugging
+- Test cases include:
+  - Standard bold/italic formatting
+  - Headers with lists
+  - Broken bold patterns from actual LLM output
+  - Orphaned bold markers
+  - Horizontal rules
+  - Multi-line bold sections
+
+#### test-llm-flow.html
+- Tests the complete LLM response processing flow
+- Simulates real hypothesis analysis and results interpretation
+- Shows raw response, parsed sections, and final rendered output
+- Includes test for broken format from user's example
+- Useful for debugging the entire parsing pipeline
 
 ### June 2025 Updates Summary
 

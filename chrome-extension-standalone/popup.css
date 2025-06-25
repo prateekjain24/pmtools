@@ -563,6 +563,12 @@ textarea {
   font-size: 12px;
 }
 
+.ai-insight .insight-content hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  margin: 16px 0;
+}
+
 .ai-fallback {
   background: var(--warning-color);
   color: var(--text-primary);
