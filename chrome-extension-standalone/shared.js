@@ -104,6 +104,44 @@ PMTools.utils = {
     return div.innerHTML;
   },
   
+  // Format LLM response from markdown-like syntax to HTML
+  formatLLMResponse(text) {
+    if (!text || typeof text !== 'string') return '';
+    
+    // First, escape HTML to prevent XSS
+    let formatted = this.sanitizeHTML(text);
+    
+    // Convert **bold** to <strong>
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert numbered lists (e.g., "1. Item" or "2. Item")
+    formatted = formatted.replace(/^(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
+    formatted = formatted.replace(/(<li>.*<\/li>)\s*(<li>)/g, '$1$2');
+    formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ol>$1</ol>');
+    
+    // Convert bullet points (- or •)
+    formatted = formatted.replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>');
+    formatted = formatted.replace(/(<li>.*<\/li>)\s*(<li>)/g, '$1$2');
+    formatted = formatted.replace(/(<li>.*<\/li>)(?!.*<\/ol>)/s, '<ul>$1</ul>');
+    
+    // Convert line breaks to <br> for better readability
+    formatted = formatted.replace(/\n\n/g, '</p><p>');
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // Wrap in paragraphs if not already wrapped
+    if (!formatted.includes('<p>') && !formatted.includes('<ol>') && !formatted.includes('<ul>')) {
+      formatted = '<p>' + formatted + '</p>';
+    }
+    
+    // Clean up any double wrapping
+    formatted = formatted.replace(/<p><ol>/g, '<ol>');
+    formatted = formatted.replace(/<\/ol><\/p>/g, '</ol>');
+    formatted = formatted.replace(/<p><ul>/g, '<ul>');
+    formatted = formatted.replace(/<\/ul><\/p>/g, '</ul>');
+    
+    return formatted;
+  },
+  
   sanitizeNumber(value, defaultValue = 0) {
     const num = parseFloat(value);
     return isNaN(num) || !isFinite(num) ? defaultValue : num;

@@ -116,7 +116,8 @@ chrome.notifications.onClicked.addListener((notificationId) => {
     // Open the extension popup or options page
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
       if (tabs[0]) {
-        chrome.action.openPopup();
+        // Note: chrome.action.openPopup() is not available in service workers
+      // The popup will open automatically when the user clicks the extension icon
       }
     });
   }
@@ -246,13 +247,3 @@ self.addEventListener('unhandledrejection', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('Service worker activated');
 });
-
-self.addEventListener('deactivate', (event) => {
-  console.log('Service worker deactivated');
-});
-
-// Keep service worker alive by setting up periodic wake-up
-function keepAlive() {
-  setTimeout(keepAlive, 25000); // Wake up every 25 seconds
-}
-keepAlive();

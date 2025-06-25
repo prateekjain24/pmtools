@@ -471,23 +471,30 @@ function generateAIAnalysisHTML(analysis, isFallback = false) {
       
       <div class="insight-section">
         <div class="insight-label">Strengths:</div>
-        <div class="insight-content">${analysis.analysis.strengths}</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.strengths)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Areas for Improvement:</div>
-        <div class="insight-content">${analysis.analysis.improvements}</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.improvements)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Improved Version:</div>
-        <div class="insight-content">${analysis.analysis.improvedVersion}</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.improvedVersion)}</div>
       </div>
       
       <div class="insight-section">
         <div class="insight-label">Success Metrics:</div>
-        <div class="insight-content">${analysis.analysis.successMetrics}</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.successMetrics)}</div>
       </div>
+      
+      ${analysis.analysis.businessConsiderations ? `
+      <div class="insight-section">
+        <div class="insight-label">Business Considerations:</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(analysis.analysis.businessConsiderations)}</div>
+      </div>
+      ` : ''}
     </div>
   `;
 }
@@ -499,22 +506,36 @@ function generateAIInterpretationHTML(interpretation, isFallback = false) {
       
       <div class="insight-section">
         <div class="insight-label">Key Takeaway:</div>
-        <div class="insight-content">${interpretation.interpretation.keyTakeaway}</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.keyTakeaway)}</div>
       </div>
       
       <div class="insight-section">
-        <div class="insight-label">Recommendation:</div>
-        <div class="insight-content">${interpretation.interpretation.recommendation}</div>
+        <div class="insight-label">Ship Decision:</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.recommendation)}</div>
       </div>
+      
+      ${interpretation.interpretation.practicalSignificance ? `
+      <div class="insight-section">
+        <div class="insight-label">Practical Significance:</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.practicalSignificance)}</div>
+      </div>
+      ` : ''}
+      
+      ${interpretation.interpretation.riskAssessment ? `
+      <div class="insight-section">
+        <div class="insight-label">Risk Assessment:</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.riskAssessment)}</div>
+      </div>
+      ` : ''}
       
       <div class="insight-section">
         <div class="insight-label">Next Steps:</div>
-        <div class="insight-content">${interpretation.interpretation.nextSteps}</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.nextSteps)}</div>
       </div>
       
       <div class="insight-section">
-        <div class="insight-label">Follow-up Questions:</div>
-        <div class="insight-content">${interpretation.interpretation.followUpQuestions}</div>
+        <div class="insight-label">Strategic Questions:</div>
+        <div class="insight-content">${PMTools.utils.formatLLMResponse(interpretation.interpretation.followUpQuestions)}</div>
       </div>
     </div>
   `;

@@ -507,6 +507,29 @@ textarea {
   line-height: 1.6;
 }
 
+.ai-insight .insight-content p {
+  margin-bottom: 8px;
+}
+
+.ai-insight .insight-content p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-insight .insight-content ul,
+.ai-insight .insight-content ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.ai-insight .insight-content li {
+  margin-bottom: 4px;
+}
+
+.ai-insight .insight-content strong {
+  font-weight: 600;
+  opacity: 1;
+}
+
 .ai-fallback {
   background: var(--warning-color);
   color: var(--text-primary);

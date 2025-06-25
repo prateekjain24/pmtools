@@ -438,20 +438,40 @@ PMTools.llm = {
    * @returns {Promise<Object>} Analysis result
    */
   async analyzeHypothesis(hypothesis, provider = PMTools.LLM_PROVIDERS.GEMINI) {
-    const prompt = `You are a Product Manager expert helping assess experiment hypotheses. 
+    const prompt = `You are an experienced Product Manager helping a colleague prepare for an A/B test. Be practical, friendly, and focus on business impact.
 
-Analyze this A/B test hypothesis and provide feedback:
-
+Analyze this hypothesis:
 "${hypothesis}"
 
-Please provide:
-1. **Clarity Score** (1-10): How clear and specific is this hypothesis?
-2. **Key Strengths**: What's good about this hypothesis?
-3. **Areas for Improvement**: What could be more specific?
-4. **Improved Version**: Rewrite the hypothesis to be more specific and testable
-5. **Success Metrics**: What metrics should be tracked for this test?
+Please provide actionable feedback:
 
-Format your response with clear headings and be constructive. Focus on helping the PM create better experiments.`;
+**1. Clarity Score (1-10):** Rate how clear and testable this hypothesis is
+
+**2. What's Working Well:** What aspects of this hypothesis are strong?
+
+**3. Key Risks & Gaps:**
+- What could go wrong with this test?
+- What important details are missing?
+- Any potential negative impacts to consider?
+
+**4. Improved Hypothesis:** Rewrite it to include:
+- Specific user segment
+- Clear change being tested
+- Expected impact (with rough %)
+- Primary metric to measure
+
+**5. Business Considerations:**
+- Estimated revenue/cost impact if successful
+- Resources needed (engineering days, design, etc.)
+- Key stakeholders to involve
+- Alignment with company goals
+
+**6. Success Metrics to Track:**
+- Primary metric (the one that matters most)
+- Secondary metrics (to catch unintended effects)
+- Guardrail metrics (to ensure nothing breaks)
+
+Be specific and practical. Think like a PM who needs to get buy-in and ship this test.`;
 
     try {
       const response = await this.callProvider(provider, prompt);
@@ -469,25 +489,45 @@ Format your response with clear headings and be constructive. Focus on helping t
    * @returns {Promise<Object>} Interpretation result
    */
   async interpretResults(results, context = '', provider = PMTools.LLM_PROVIDERS.GEMINI) {
-    const prompt = `You are a Product Manager expert analyzing A/B test results.
+    const prompt = `You are a seasoned Product Manager helping a colleague interpret A/B test results. Be direct, practical, and focus on making the right business decision.
 
-**Experiment Context:**
-${context}
+**What We Tested:**
+${context || 'No context provided'}
 
-**Results Summary:**
-- Control: ${results.controlConversionRate * 100}% conversion rate (${results.controlUsers || 'N/A'} users)
-- Treatment: ${results.treatmentConversionRate * 100}% conversion rate (${results.treatmentUsers || 'N/A'} users)
+**The Numbers:**
+- Control: ${(results.controlConversionRate * 100).toFixed(1)}% conversion (${results.controlUsers || 'N/A'} users, ${results.controlConversions || 'N/A'} conversions)
+- Treatment: ${(results.treatmentConversionRate * 100).toFixed(1)}% conversion (${results.treatmentUsers || 'N/A'} users, ${results.treatmentConversions || 'N/A'} conversions)
 - Relative Lift: ${(results.relativeLift * 100).toFixed(1)}%
-- P-value: ${results.pValue}
-- Statistical Significance: ${results.isSignificant ? 'Yes' : 'No'}
+- Statistical Significance: ${results.isSignificant ? 'YES' : 'NO'} (p-value: ${results.pValue.toFixed(4)})
 
-Please provide:
-1. **Key Takeaway**: One-sentence summary of the result
-2. **Recommendation**: Should we ship this change? Why or why not?
-3. **Next Steps**: What should the PM do next?
-4. **Follow-up Questions**: 3 strategic questions to explore further
+**1. Bottom Line:** 
+Give me the TL;DR - what happened and what it means for the business.
 
-Be practical and actionable. Focus on business impact, not just statistical significance.`;
+**2. Ship Decision:**
+- Should we ship this? (YES/NO/MAYBE)
+- Key reasons for your recommendation
+- Any caveats or conditions?
+
+**3. Practical Significance:**
+- Is this result meaningful for the business, regardless of statistics?
+- What's the actual impact in terms of revenue/users/engagement?
+- Is the improvement worth the implementation effort?
+
+**4. Risk Assessment:**
+- What could go wrong if we ship this?
+- Which user segments might be negatively affected?
+- Any technical debt or maintenance concerns?
+
+**5. Immediate Next Steps:**
+Give me 3 specific actions to take this week:
+- Who to talk to
+- What data to analyze
+- What to prepare
+
+**6. Strategic Questions:**
+What are the 3 most important questions we should be asking about these results that we haven't considered yet?
+
+Remember: Good PMs ship features that move metrics AND create long-term value. Be honest about trade-offs.`;
 
     try {
       const response = await this.callProvider(provider, prompt);
@@ -506,10 +546,11 @@ Be practical and actionable. Focus on business impact, not just statistical sign
     try {
       const sections = {
         clarityScore: this.extractSection(response, ['clarity score', 'score'], '7'),
-        strengths: this.extractSection(response, ['strengths', 'good'], 'Hypothesis provided'),
-        improvements: this.extractSection(response, ['improvement', 'could be'], 'Consider adding more specificity'),
-        improvedVersion: this.extractSection(response, ['improved', 'rewrite', 'better'], 'Refine hypothesis with specific metrics and user segments'),
-        successMetrics: this.extractSection(response, ['metrics', 'track', 'measure'], 'Track primary conversion metric')
+        strengths: this.extractSection(response, ['working well', 'strengths', 'good'], 'Hypothesis provided'),
+        improvements: this.extractSection(response, ['risks', 'gaps', 'improvement'], 'Consider adding more specificity'),
+        improvedVersion: this.extractSection(response, ['improved hypothesis', 'rewrite', 'better'], 'Refine hypothesis with specific metrics and user segments'),
+        successMetrics: this.extractSection(response, ['success metrics', 'metrics to track', 'measure'], 'Track primary conversion metric'),
+        businessConsiderations: this.extractSection(response, ['business considerations', 'revenue', 'resources'], 'Consider business impact and resource requirements')
       };
       
       return {
@@ -531,10 +572,12 @@ Be practical and actionable. Focus on business impact, not just statistical sign
   parseResultsInterpretation(response) {
     try {
       const sections = {
-        keyTakeaway: this.extractSection(response, ['takeaway', 'summary'], 'Results analyzed'),
-        recommendation: this.extractSection(response, ['recommendation', 'should we'], 'Review results carefully'),
-        nextSteps: this.extractSection(response, ['next steps', 'what should'], 'Continue monitoring'),
-        followUpQuestions: this.extractSection(response, ['questions', 'explore'], 'What factors might have influenced these results?')
+        keyTakeaway: this.extractSection(response, ['bottom line', 'takeaway', 'summary'], 'Results analyzed'),
+        recommendation: this.extractSection(response, ['ship decision', 'recommendation', 'should we'], 'Review results carefully'),
+        practicalSignificance: this.extractSection(response, ['practical significance', 'meaningful', 'business impact'], 'Consider business impact'),
+        riskAssessment: this.extractSection(response, ['risk assessment', 'could go wrong', 'risks'], 'Evaluate potential risks'),
+        nextSteps: this.extractSection(response, ['immediate next steps', 'next steps', 'actions'], 'Continue monitoring'),
+        followUpQuestions: this.extractSection(response, ['strategic questions', 'questions', 'explore'], 'What factors might have influenced these results?')
       };
       
       return {
@@ -571,18 +614,44 @@ Be practical and actionable. Focus on business impact, not just statistical sign
     if (sectionStart === -1) return fallback;
     
     // Extract content
-    let content = '';
+    let content = [];
+    let isFirstLine = true;
+    
     for (let i = sectionStart; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (i > sectionStart && line.match(/^\d+\.|^\*\*|^#/)) {
-        break; // Next section
+      const line = lines[i];
+      const trimmedLine = line.trim();
+      
+      // Skip the header line itself
+      if (i === sectionStart) {
+        // Check if there's content on the same line as the header
+        const colonIndex = line.indexOf(':');
+        if (colonIndex !== -1 && colonIndex < line.length - 1) {
+          const headerContent = line.substring(colonIndex + 1).trim();
+          if (headerContent) {
+            content.push(headerContent);
+            isFirstLine = false;
+          }
+        }
+        continue;
       }
-      if (line && !line.match(/^\*\*.*\*\*$/)) {
-        content += line + ' ';
+      
+      // Check if we've reached the next section
+      if (trimmedLine.match(/^\*\*\d+\.|^\*\*[A-Z]/)) {
+        break;
+      }
+      
+      // Add the line content
+      if (trimmedLine) {
+        content.push(trimmedLine);
+      } else if (content.length > 0) {
+        // Preserve paragraph breaks
+        content.push('');
       }
     }
     
-    return content.trim() || fallback;
+    // Join with newlines to preserve structure
+    const result = content.join('\n').trim();
+    return result || fallback;
   },
   
   /**
@@ -598,7 +667,8 @@ Be practical and actionable. Focus on business impact, not just statistical sign
         strengths: 'You\'ve provided a testable hypothesis for your experiment.',
         improvements: 'Consider adding specific metrics, user segments, and expected impact size.',
         improvedVersion: 'Try to include: what you\'ll change, which users it affects, what metric will improve, and by how much.',
-        successMetrics: 'Track your primary conversion metric and any relevant secondary metrics.'
+        successMetrics: 'Track your primary conversion metric and any relevant secondary metrics.',
+        businessConsiderations: 'Think about resource requirements, stakeholder buy-in, and alignment with business goals.'
       },
       rawResponse: 'AI analysis temporarily unavailable. Using fallback guidance.',
       usingFallback: true
@@ -623,6 +693,8 @@ Be practical and actionable. Focus on business impact, not just statistical sign
         recommendation: isSignificant && lift > 0
           ? 'Consider shipping this change after reviewing practical significance.'
           : 'Do not ship this change based on current results.',
+        practicalSignificance: 'Evaluate if the observed change is meaningful for your business metrics and worth the implementation effort.',
+        riskAssessment: 'Consider potential negative impacts on other metrics and different user segments.',
         nextSteps: 'Review the practical significance, consider running a longer test, or explore different variations.',
         followUpQuestions: 'What might have caused these results? Are there any external factors to consider? Should we test with different user segments?'
       },
