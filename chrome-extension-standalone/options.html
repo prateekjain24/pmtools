@@ -22,7 +22,7 @@
     <main class="main-content">
       <!-- API Keys Section -->
       <section class="settings-section">
-        <h2>🤖 AI Assistant Setup (Optional)</h2>
+        <h2>AI Assistant Setup (Optional)</h2>
         <p class="section-description">
           Add your own API keys to enable AI-powered insights. Your keys are stored securely in your browser only.
           <strong>Statistical calculations work without AI.</strong>
@@ -33,7 +33,7 @@
           <div class="provider-header">
             <h3>Google Gemini (Recommended)</h3>
             <div class="provider-status" id="geminiStatus">
-              <span class="status-indicator" id="geminiIndicator">❌</span>
+              <span class="status-indicator" id="geminiIndicator">✗</span>
               <span id="geminiStatusText">Not configured</span>
             </div>
           </div>
@@ -58,7 +58,7 @@
                   autocomplete="off"
                 >
                 <button type="button" id="geminiToggle" class="toggle-password" title="Show/Hide">
-                  👁️
+                  Show
                 </button>
               </div>
             </div>
@@ -72,14 +72,14 @@
                 <option value="">Loading models...</option>
               </select>
               <button type="button" id="geminiRefreshModels" class="btn-icon" title="Refresh models">
-                🔄
+                ↻
               </button>
             </div>
             
             <div class="provider-actions">
-              <button id="geminiTest" class="btn-secondary">🧪 Test Connection</button>
-              <button id="geminiSave" class="btn-primary">💾 Save Key</button>
-              <button id="geminiRemove" class="btn-danger" style="display: none;">🗑️ Remove</button>
+              <button id="geminiTest" class="btn-secondary">Test Connection</button>
+              <button id="geminiSave" class="btn-primary">Save Key</button>
+              <button id="geminiRemove" class="btn-danger" style="display: none;">Remove</button>
             </div>
             
             <div id="geminiMessage" class="message" style="display: none;"></div>
@@ -91,7 +91,7 @@
           <div class="provider-header">
             <h3>Anthropic Claude</h3>
             <div class="provider-status" id="anthropicStatus">
-              <span class="status-indicator" id="anthropicIndicator">❌</span>
+              <span class="status-indicator" id="anthropicIndicator">✗</span>
               <span id="anthropicStatusText">Not configured</span>
             </div>
           </div>
@@ -116,7 +116,7 @@
                   autocomplete="off"
                 >
                 <button type="button" id="anthropicToggle" class="toggle-password" title="Show/Hide">
-                  👁️
+                  Show
                 </button>
               </div>
             </div>
@@ -130,14 +130,14 @@
                 <option value="">Loading models...</option>
               </select>
               <button type="button" id="anthropicRefreshModels" class="btn-icon" title="Refresh models">
-                🔄
+                ↻
               </button>
             </div>
             
             <div class="provider-actions">
-              <button id="anthropicTest" class="btn-secondary">🧪 Test Connection</button>
-              <button id="anthropicSave" class="btn-primary">💾 Save Key</button>
-              <button id="anthropicRemove" class="btn-danger" style="display: none;">🗑️ Remove</button>
+              <button id="anthropicTest" class="btn-secondary">Test Connection</button>
+              <button id="anthropicSave" class="btn-primary">Save Key</button>
+              <button id="anthropicRemove" class="btn-danger" style="display: none;">Remove</button>
             </div>
             
             <div id="anthropicMessage" class="message" style="display: none;"></div>
@@ -146,7 +146,7 @@
 
         <!-- AI Preferences -->
         <div class="preferences-section">
-          <h3>🎛️ AI Preferences</h3>
+          <h3>AI Preferences</h3>
           
           <div class="form-group">
             <label for="preferredProvider">Preferred AI Provider</label>
@@ -174,7 +174,7 @@
 
       <!-- General Settings -->
       <section class="settings-section">
-        <h2>⚙️ General Settings</h2>
+        <h2>General Settings</h2>
         
         <div class="form-group">
           <label class="checkbox-label">
@@ -231,32 +231,32 @@
 
       <!-- Data Management -->
       <section class="settings-section">
-        <h2>📊 Data Management</h2>
+        <h2>Data Management</h2>
         
         <div class="data-actions">
           <button id="exportSettings" class="btn-secondary">
-            📥 Export Settings
+            Export Settings
           </button>
           <button id="importSettings" class="btn-secondary">
-            📤 Import Settings
+            Import Settings
           </button>
           <button id="clearData" class="btn-danger">
-            🗑️ Clear All Data
+            Clear All Data
           </button>
         </div>
         
         <p class="data-warning">
-          <strong>⚠️ Warning:</strong> Clearing data will remove all saved API keys, preferences, and form data. This action cannot be undone.
+          <strong>Warning:</strong> Clearing data will remove all saved API keys, preferences, and form data. This action cannot be undone.
         </p>
       </section>
 
       <!-- Help & Support -->
       <section class="settings-section">
-        <h2>❓ Help & Support</h2>
+        <h2>Help & Support</h2>
         
         <div class="help-grid">
           <div class="help-item">
-            <h4>📖 Getting Started</h4>
+            <h4>Getting Started</h4>
             <p>Learn how to use PM Tools effectively with our comprehensive guides.</p>
             <a href="https://github.com/pmtools/docs" target="_blank" class="help-link">
               View Documentation →
@@ -264,7 +264,7 @@
           </div>
           
           <div class="help-item">
-            <h4>🧮 Statistical Methods</h4>
+            <h4>Statistical Methods</h4>
             <p>Understand the statistical calculations and methodologies we use.</p>
             <a href="https://github.com/pmtools/methodology" target="_blank" class="help-link">
               Learn Statistics →
@@ -272,7 +272,7 @@
           </div>
           
           <div class="help-item">
-            <h4>🐛 Report Issues</h4>
+            <h4>Report Issues</h4>
             <p>Found a bug or have a feature request? Let us know!</p>
             <a href="https://github.com/pmtools/issues" target="_blank" class="help-link">
               Report Issue →
@@ -280,7 +280,7 @@
           </div>
           
           <div class="help-item">
-            <h4>💬 Community</h4>
+            <h4>Community</h4>
             <p>Join other PMs discussing A/B testing best practices.</p>
             <a href="https://discord.gg/pmtools" target="_blank" class="help-link">
               Join Discord →
@@ -293,7 +293,7 @@
     <!-- Footer -->
     <footer class="footer">
       <div class="footer-content">
-        <p>PM Tools v1.0.0 • Made with ❤️ for Product Managers</p>
+        <p>PM Tools v1.0.0 • Made for Product Managers</p>
         <div class="footer-links">
           <a href="https://pmtools.dev/privacy" target="_blank">Privacy</a>
           <a href="https://pmtools.dev/terms" target="_blank">Terms</a>

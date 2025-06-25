@@ -7,7 +7,7 @@ PMTools.llm = {
     [PMTools.LLM_PROVIDERS.GEMINI]: {
       name: 'Google Gemini',
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-      defaultModel: 'gemini-2.5-flash',
+      defaultModel: 'gemini-2.5-pro',
       requiresAuth: true,
       maxRetries: 3,
       timeout: 30000,
@@ -16,7 +16,7 @@ PMTools.llm = {
     [PMTools.LLM_PROVIDERS.ANTHROPIC]: {
       name: 'Anthropic Claude',
       baseUrl: 'https://api.anthropic.com/v1',
-      defaultModel: 'claude-3-5-sonnet-20241022',
+      defaultModel: 'claude-sonnet-4-0',
       requiresAuth: true,
       maxRetries: 3,
       timeout: 30000,

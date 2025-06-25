@@ -16,7 +16,7 @@
           <h1>PM Tools</h1>
         </div>
         <button id="settingsBtn" class="icon-btn" title="Settings">
-          ⚙️
+          Settings
         </button>
       </div>
     </header>
@@ -24,10 +24,10 @@
     <!-- Tab Navigation -->
     <nav class="tab-nav">
       <button id="validateTab" class="tab-btn active" data-tab="validate">
-        🧪 Validate Setup
+        Validate Setup
       </button>
       <button id="analyzeTab" class="tab-btn" data-tab="analyze">
-        📊 Analyze Results
+        Analyze Results
       </button>
     </nav>
 
@@ -37,7 +37,7 @@
         <div class="form-group">
           <label for="hypothesis">
             What's your hypothesis?
-            <span class="tooltip" data-tooltip="Describe what you'll change and what you expect to happen. Be specific!">ℹ️</span>
+            <span class="tooltip" data-tooltip="Describe what you'll change and what you expect to happen. Be specific!">?</span>
           </label>
           <textarea 
             id="hypothesis"
@@ -51,7 +51,7 @@
         <div class="form-group">
           <label for="metricName">
             Primary Metric
-            <span class="tooltip" data-tooltip="What are you measuring? Conversion rate, click-through rate, etc.">ℹ️</span>
+            <span class="tooltip" data-tooltip="What are you measuring? Conversion rate, click-through rate, etc.">?</span>
           </label>
           <input 
             type="text" 
@@ -65,7 +65,7 @@
         <div class="form-group">
           <label for="baselineRate">
             Current Baseline Rate
-            <span class="tooltip" data-tooltip="Your current conversion rate as a percentage (e.g., 5.2 for 5.2%)">ℹ️</span>
+            <span class="tooltip" data-tooltip="Your current conversion rate as a percentage (e.g., 5.2 for 5.2%)">?</span>
           </label>
           <div class="input-group">
             <input 
@@ -101,7 +101,7 @@
         <div class="form-group">
           <label for="mdeValue">
             <span id="mdeLabel">Expected Improvement</span>
-            <span class="tooltip" data-tooltip="The smallest improvement you want to reliably detect. Smaller values need larger sample sizes.">ℹ️</span>
+            <span class="tooltip" data-tooltip="The smallest improvement you want to reliably detect. Smaller values need larger sample sizes.">?</span>
           </label>
           <div class="input-group">
             <input 
@@ -120,7 +120,7 @@
         <div class="form-group">
           <label for="dailyUsers">
             Estimated Daily Users
-            <span class="tooltip" data-tooltip="How many users visit your site/app per day on average?">ℹ️</span>
+            <span class="tooltip" data-tooltip="How many users visit your site/app per day on average?">?</span>
           </label>
           <input 
             type="number" 
@@ -134,14 +134,14 @@
 
         <div class="advanced-section">
           <button type="button" id="advancedToggle" class="advanced-toggle">
-            ⚙️ Advanced Settings
+            Advanced Settings
           </button>
           
           <div id="advancedOptions" class="advanced-options">
             <div class="form-group">
               <label for="statisticalPower">
                 Statistical Power
-                <span class="tooltip" data-tooltip="Probability of detecting an effect if it exists. 80% is standard.">ℹ️</span>
+                <span class="tooltip" data-tooltip="Probability of detecting an effect if it exists. 80% is standard.">?</span>
               </label>
               <div class="input-group">
                 <input 
@@ -160,7 +160,7 @@
             <div class="form-group">
               <label for="significanceLevel">
                 Significance Level (α)
-                <span class="tooltip" data-tooltip="Probability of false positive. 5% is standard.">ℹ️</span>
+                <span class="tooltip" data-tooltip="Probability of false positive. 5% is standard.">?</span>
               </label>
               <div class="input-group">
                 <input 
@@ -179,7 +179,7 @@
             <div class="form-group">
               <label for="numVariants">
                 Number of Variants
-                <span class="tooltip" data-tooltip="Total number of test groups (including control)">ℹ️</span>
+                <span class="tooltip" data-tooltip="Total number of test groups (including control)">?</span>
               </label>
               <input 
                 type="number" 
@@ -194,7 +194,7 @@
         </div>
 
         <button type="submit" id="validateBtn" class="btn-primary">
-          🧮 Validate Experiment
+          Validate Experiment
         </button>
 
         <div id="validateMessage" class="message" style="display: none;"></div>
@@ -207,7 +207,7 @@
         <div class="form-group">
           <label for="experimentContext">
             Experiment Context
-            <span class="tooltip" data-tooltip="Brief description of what you tested (optional but helpful for AI insights)">ℹ️</span>
+            <span class="tooltip" data-tooltip="Brief description of what you tested (optional but helpful for AI insights)">?</span>
           </label>
           <textarea 
             id="experimentContext"
@@ -278,7 +278,7 @@
         </div>
 
         <button type="submit" id="analyzeBtn" class="btn-primary">
-          📊 Analyze Results
+          Analyze Results
         </button>
 
         <div id="analyzeMessage" class="message" style="display: none;"></div>
@@ -289,7 +289,7 @@
     <div id="resultsSection" class="results-section" style="display: none;">
       <div class="results-header">
         <h2 id="resultsTitle">Results</h2>
-        <button id="scrollTopBtn" class="scroll-top-btn" title="Scroll to top">🔝</button>
+        <button id="scrollTopBtn" class="scroll-top-btn" title="Scroll to top">↑</button>
       </div>
       
       <div id="resultsContent">
@@ -297,9 +297,9 @@
       </div>
       
       <div class="results-actions">
-        <button id="exportCsvBtn" class="btn-secondary">📥 Export CSV</button>
-        <button id="exportJsonBtn" class="btn-secondary">📥 Export JSON</button>
-        <button id="newCalculationBtn" class="btn-primary">🔄 New Calculation</button>
+        <button id="exportCsvBtn" class="btn-secondary">Export CSV</button>
+        <button id="exportJsonBtn" class="btn-secondary">Export JSON</button>
+        <button id="newCalculationBtn" class="btn-primary">New Calculation</button>
       </div>
     </div>
 

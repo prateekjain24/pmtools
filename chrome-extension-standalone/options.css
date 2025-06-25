@@ -1,23 +1,23 @@
 /* PM Tools Options Page Styles */
 
 :root {
-  --primary-color: #007cba;
-  --primary-dark: #005a87;
-  --secondary-color: #f0f8ff;
-  --accent-color: #00a86b;
-  --text-primary: #333333;
+  --primary-color: #000000;
+  --primary-dark: #333333;
+  --secondary-color: #ffffff;
+  --accent-color: #000000;
+  --text-primary: #000000;
   --text-secondary: #666666;
-  --text-muted: #888888;
-  --border-color: #e0e0e0;
-  --error-color: #dc3545;
-  --success-color: #28a745;
-  --warning-color: #ffc107;
-  --danger-color: #dc3545;
+  --text-muted: #999999;
+  --border-color: #e5e5e5;
+  --error-color: #000000;
+  --success-color: #000000;
+  --warning-color: #666666;
+  --danger-color: #000000;
   --background: #ffffff;
-  --background-light: #f8f9fa;
-  --background-dark: #f1f3f4;
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --background-light: #f8f8f8;
+  --background-dark: #f5f5f5;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.05);
   --radius: 8px;
   --radius-small: 4px;
   --transition: all 0.2s ease;
@@ -47,9 +47,10 @@ body {
 
 /* Header */
 .header {
-  background: var(--primary-color);
-  color: white;
+  background: var(--background);
+  color: var(--text-primary);
   padding: 24px 32px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .header-content {
@@ -174,8 +175,8 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
 }
 
 .input-group {
@@ -212,8 +213,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .help-link {
-  color: var(--primary-color);
-  text-decoration: none;
+  color: var(--text-primary);
+  text-decoration: underline;
   font-size: 13px;
   margin-left: 8px;
   font-weight: 500;
@@ -249,13 +250,13 @@ input:focus, select:focus, textarea:focus {
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
+  background: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
   content: '✓';
-  color: white;
+  color: var(--secondary-color);
   font-size: 12px;
   font-weight: bold;
   position: absolute;
@@ -267,7 +268,7 @@ input:focus, select:focus, textarea:focus {
 /* Buttons */
 .btn-primary, .btn-secondary, .btn-danger {
   padding: 10px 16px;
-  border: none;
+  border: 1px solid var(--text-primary);
   border-radius: var(--radius-small);
   font-size: 14px;
   font-weight: 500;
@@ -281,37 +282,41 @@ input:focus, select:focus, textarea:focus {
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  color: white;
+  background: var(--text-primary);
+  color: var(--secondary-color);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--primary-dark);
+  background: var(--secondary-color);
+  color: var(--text-primary);
 }
 
 .btn-primary:disabled {
-  background: var(--text-muted);
+  background: var(--background-light);
+  border-color: var(--border-color);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
 
 .btn-secondary {
   background: var(--background);
-  color: var(--primary-color);
-  border: 1px solid var(--primary-color);
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--primary-color);
-  color: white;
+  background: var(--text-primary);
+  color: var(--secondary-color);
 }
 
 .btn-danger {
-  background: var(--danger-color);
-  color: white;
+  background: var(--text-primary);
+  color: var(--secondary-color);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #c82333;
+  background: var(--secondary-color);
+  color: var(--text-primary);
 }
 
 /* Preferences Section */
@@ -383,8 +388,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .help-item .help-link {
-  color: var(--primary-color);
-  text-decoration: none;
+  color: var(--text-primary);
+  text-decoration: underline;
   font-weight: 500;
   font-size: 13px;
 }
@@ -406,27 +411,27 @@ input:focus, select:focus, textarea:focus {
 }
 
 .message.success {
-  background: rgba(40, 167, 69, 0.1);
-  color: var(--success-color);
-  border: 1px solid rgba(40, 167, 69, 0.2);
+  background: var(--background-light);
+  color: var(--text-primary);
+  border: 1px solid var(--text-primary);
 }
 
 .message.error {
-  background: rgba(220, 53, 69, 0.1);
-  color: var(--error-color);
-  border: 1px solid rgba(220, 53, 69, 0.2);
+  background: var(--text-primary);
+  color: var(--secondary-color);
+  border: 1px solid var(--text-primary);
 }
 
 .message.info {
-  background: rgba(0, 124, 186, 0.1);
-  color: var(--primary-color);
-  border: 1px solid rgba(0, 124, 186, 0.2);
+  background: var(--background-light);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .message.warning {
-  background: rgba(255, 193, 7, 0.1);
-  color: #856404;
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  background: var(--background-light);
+  color: var(--text-primary);
+  border: 1px solid var(--text-secondary);
 }
 
 /* Footer */
@@ -463,7 +468,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .footer-links a:hover {
-  color: var(--primary-color);
+  color: var(--text-primary);
 }
 
 /* Loading States */
@@ -477,7 +482,7 @@ input:focus, select:focus, textarea:focus {
   width: 16px;
   height: 16px;
   border: 2px solid var(--border-color);
-  border-top: 2px solid var(--primary-color);
+  border-top: 2px solid var(--text-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -538,7 +543,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--primary-color);
+  outline: 2px solid var(--text-primary);
   outline-offset: 2px;
 }
 
