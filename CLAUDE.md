@@ -24,6 +24,7 @@ The standalone Chrome extension is now fully implemented with:
 - ✅ Real-time model discovery from API providers
 - ✅ 24-hour caching for model lists
 - ✅ Markdown to HTML conversion for LLM responses
+- ✅ Structured JSON output for reliable LLM responses (June 2025)
 
 ## Memory
 
@@ -49,6 +50,22 @@ The standalone Chrome extension is now fully implemented with:
 - Added pulse animation for visual highlight effect
 - Form collapse feature with toggle button for better space utilization
 
+### Structured LLM Output (June 2025)
+- **Problem**: LLM responses had broken markdown formatting (e.g., `**3/10**`, incomplete bold markers)
+- **Solution**: Implemented Pydantic-style structured JSON output
+- **Features**:
+  - JSON schemas for hypothesis analysis and results interpretation
+  - Direct HTML rendering from structured data (no regex parsing)
+  - Support for both Gemini (JSON mode) and Anthropic
+  - Professional UI with tables, colored indicators, and semantic sections
+  - Backward compatibility with text-based parsing as fallback
+- **Benefits**:
+  - Eliminates markdown parsing errors completely
+  - Type-safe responses with validation
+  - Consistent formatting regardless of LLM quirks
+  - Cleaner, more maintainable code
+
 ### Known Issues (Resolved)
 - ~~**Results Hidden in Fold 2**: Results were not immediately visible after analysis~~ ✅ Fixed June 2025
 - ~~**Auto-scroll Not Working**: ID mismatch prevented scrollToResults from functioning~~ ✅ Fixed June 2025
+- ~~**Broken Markdown in LLM Responses**: Raw markdown like `**text**` showing incorrectly~~ ✅ Fixed June 2025 with structured output
