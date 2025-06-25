@@ -530,6 +530,11 @@ textarea {
   opacity: 1;
 }
 
+.ai-insight .insight-content em {
+  font-style: italic;
+  opacity: 1;
+}
+
 .ai-insight .insight-content h1,
 .ai-insight .insight-content h2,
 .ai-insight .insight-content h3,

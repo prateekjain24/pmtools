@@ -117,8 +117,13 @@ PMTools.utils = {
       return `<h${level}>${content}</h${level}>`;
     });
     
-    // Convert **bold** to <strong> - improved regex to handle multi-line
-    formatted = formatted.replace(/\*\*([^\*]+(?:\*(?!\*)[^\*]*)*)\*\*/g, '<strong>$1</strong>');
+    // Convert bold and italic text
+    // First handle bold (double asterisks) - must be done before italic
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    
+    // Then handle italic (single asterisks) - using negative lookbehind/ahead to avoid matching bold
+    // This regex ensures we only match single asterisks not part of double asterisks
+    formatted = formatted.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
     
     // Convert `code` to <code>
     formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');

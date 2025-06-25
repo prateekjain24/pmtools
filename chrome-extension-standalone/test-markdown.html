@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Markdown Parsing</title>
+    <link rel="stylesheet" href="popup.css">
+    <style>
+        body {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .input {
+            background: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .output {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #eee;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Markdown Parsing Test</h1>
+    
+    <div class="test-case">
+        <h2>Test Case 1: Bold and Italic</h2>
+        <div class="input" id="input1">**3/10** It's a good *idea*, but far too vague</div>
+        <div class="output ai-insight">
+            <div class="insight-content" id="output1"></div>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <h2>Test Case 2: Headers and Lists</h2>
+        <div class="input" id="input2">### Analysis of Hypothesis
+
+#### Key Points:
+* First bullet point with **bold text**
+* Second point with *italic text*
+* Third point with `code`
+
+1. Numbered item one
+2. Numbered item two</div>
+        <div class="output ai-insight">
+            <div class="insight-content" id="output2"></div>
+        </div>
+    </div>
+    
+    <div class="test-case">
+        <h2>Test Case 3: Complex Example</h2>
+        <div class="input" id="input3">### Clarity Score: **3/10**
+
+**What's Working Well:**
+* Clear *intent* to improve clicks
+* Identifies **CTA** as target
+
+**Areas for Improvement:**
+- Define "prominent" more precisely
+- Specify *which* CTA
+- Add expected % increase</div>
+        <div class="output ai-insight">
+            <div class="insight-content" id="output3"></div>
+        </div>
+    </div>
+    
+    <script src="shared.js"></script>
+    <script>
+        // Test the markdown parsing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test case 1
+            const input1 = document.getElementById('input1').textContent;
+            const output1 = PMTools.utils.formatLLMResponse(input1);
+            document.getElementById('output1').innerHTML = output1;
+            
+            // Test case 2
+            const input2 = document.getElementById('input2').textContent;
+            const output2 = PMTools.utils.formatLLMResponse(input2);
+            document.getElementById('output2').innerHTML = output2;
+            
+            // Test case 3
+            const input3 = document.getElementById('input3').textContent;
+            const output3 = PMTools.utils.formatLLMResponse(input3);
+            document.getElementById('output3').innerHTML = output3;
+            
+            // Log results for debugging
+            console.log('Test 1 Output:', output1);
+            console.log('Test 2 Output:', output2);
+            console.log('Test 3 Output:', output3);
+        });
+    </script>
+</body>
+</html>
