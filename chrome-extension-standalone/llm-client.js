@@ -7,7 +7,7 @@ PMTools.llm = {
     [PMTools.LLM_PROVIDERS.GEMINI]: {
       name: 'Google Gemini',
       baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-      defaultModel: 'gemini-2.0-flash-exp',
+      defaultModel: 'gemini-2.5-flash',
       requiresAuth: true,
       maxRetries: 3,
       timeout: 30000,
@@ -184,12 +184,24 @@ PMTools.llm = {
       return models;
     } catch (error) {
       console.error('Failed to fetch Gemini models:', error);
-      // Return default model as fallback
-      return [{
-        id: provider.defaultModel,
-        displayName: 'Gemini Flash (Default)',
-        description: 'Fast and efficient model for most tasks'
-      }];
+      // Return default models as fallback
+      return [
+        {
+          id: 'gemini-2.5-flash',
+          displayName: 'Gemini 2.5 Flash',
+          description: 'Latest fast model for most tasks'
+        },
+        {
+          id: 'gemini-1.5-flash',
+          displayName: 'Gemini 1.5 Flash',
+          description: 'Stable fast model'
+        },
+        {
+          id: 'gemini-1.5-pro',
+          displayName: 'Gemini 1.5 Pro',
+          description: 'Advanced model for complex tasks'
+        }
+      ];
     }
   },
   
@@ -298,6 +310,7 @@ PMTools.llm = {
     
     const provider = this.providers[PMTools.LLM_PROVIDERS.GEMINI];
     const model = await this.getSelectedModel(PMTools.LLM_PROVIDERS.GEMINI);
+    console.log('Using Gemini model:', model);
     const url = `${provider.baseUrl}/models/${model}:generateContent?key=${apiKey}`;
     
     const fetchOptions = {
@@ -313,16 +326,28 @@ PMTools.llm = {
           temperature: 0.7,
           topP: 0.8,
           topK: 40,
-          maxOutputTokens: 1024
+          maxOutputTokens: 1024,
+          responseMimeType: 'text/plain'
         }
       }),
       provider: PMTools.LLM_PROVIDERS.GEMINI
     };
     
+    console.log('Gemini API Request:', {
+      url: url,
+      model: model,
+      promptLength: prompt.length
+    });
+    
     const response = await this.fetchWithRetry(url, fetchOptions, provider.maxRetries);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('Gemini API Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      });
       throw new Error(`Gemini API error: ${response.status} ${errorData.error?.message || response.statusText}`);
     }
     
@@ -408,7 +433,11 @@ PMTools.llm = {
         throw new Error(`Unknown provider: ${provider}`);
       }
     } catch (error) {
-      console.error(`${provider} API call failed:`, error);
+      console.error(`${provider} API call failed:`, {
+        provider: provider,
+        error: error.message,
+        stack: error.stack
+      });
       
       // Try fallback provider if enabled and not in test mode
       if (!options.noFallback && !options.apiKey) {

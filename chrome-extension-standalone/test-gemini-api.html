@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Gemini API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Gemini API Connection</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Direct API Call</h2>
+        <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
+        <button onclick="testDirectAPI()">Test Direct API</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Extension API</h2>
+        <button onclick="testExtensionAPI()">Test Extension API</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Check Console Logs</h2>
+        <p>Open DevTools Console (F12) to see detailed logs</p>
+    </div>
+    
+    <div id="result"></div>
+    
+    <!-- Load extension scripts -->
+    <script src="shared.js"></script>
+    <script src="llm-client.js"></script>
+    
+    <script>
+        function showResult(message, isError = false) {
+            const result = document.getElementById('result');
+            result.className = isError ? 'error' : 'success';
+            result.textContent = message;
+        }
+        
+        async function testDirectAPI() {
+            const apiKey = document.getElementById('apiKey').value;
+            if (!apiKey) {
+                showResult('Please enter an API key', true);
+                return;
+            }
+            
+            showResult('Testing direct API call...');
+            
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: 'Say "Hello, API is working!"' }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            topP: 0.8,
+                            topK: 40,
+                            maxOutputTokens: 100,
+                            responseMimeType: 'text/plain'
+                        }
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} - ${JSON.stringify(data)}`);
+                }
+                
+                if (data.candidates && data.candidates[0]) {
+                    showResult(`Success! API Response: ${data.candidates[0].content.parts[0].text}`);
+                } else {
+                    showResult('Success! But no response text generated.', true);
+                }
+                
+            } catch (error) {
+                console.error('Direct API test failed:', error);
+                showResult(`Error: ${error.message}`, true);
+            }
+        }
+        
+        async function testExtensionAPI() {
+            showResult('Testing extension API...');
+            
+            try {
+                // First save the API key if provided
+                const apiKey = document.getElementById('apiKey').value;
+                if (apiKey) {
+                    await PMTools.llm.saveApiKey('gemini', apiKey);
+                    console.log('API key saved');
+                }
+                
+                // Test the API
+                const response = await PMTools.llm.callProvider(
+                    PMTools.LLM_PROVIDERS.GEMINI,
+                    'Say "Hello, extension API is working!"'
+                );
+                
+                showResult(`Success! Extension API Response: ${response}`);
+                
+            } catch (error) {
+                console.error('Extension API test failed:', error);
+                showResult(`Error: ${error.message}`, true);
+            }
+        }
+        
+        // Also test model fetching
+        async function testModelFetch() {
+            const apiKey = document.getElementById('apiKey').value;
+            if (!apiKey) return;
+            
+            try {
+                const models = await PMTools.llm.fetchGeminiModels(apiKey);
+                console.log('Available Gemini models:', models);
+            } catch (error) {
+                console.error('Model fetch failed:', error);
+            }
+        }
+    </script>
+</body>
+</html>
